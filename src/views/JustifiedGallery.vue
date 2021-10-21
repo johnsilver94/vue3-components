@@ -4,7 +4,11 @@
 		<div class="w-80">
 			<p>Some Text</p>
 		</div>
-		<JustifiedLayout :images="images"></JustifiedLayout>
+		<JustifiedLayout :images="images">
+			<!-- <template #after>
+				<div><p class="font-semibold text-xl text-gray-900">Crocodile</p></div>
+			</template> -->
+		</JustifiedLayout>
 	</div>
 </template>
 <script lang="ts">
@@ -95,10 +99,10 @@ export default {
 			{ src: 'https://picsum.photos/720/480?random=3', width: 720, height: 480 },
 			{ src: 'https://picsum.photos/480/1280?random=3', width: 480, height: 1280 },
 			{ src: 'https://picsum.photos/480/960?random=3', width: 480, height: 960 },
-			{ src: 'https://picsum.photos/480/480?random=3', width: 480, height: 480 },
-			{ src: 'https://picsum.photos/480/480?random=3', width: 480, height: 480 },
-			{ src: 'https://picsum.photos/1280/720?random=3', width: 1280, height: 720 },
-			{ src: 'https://picsum.photos/1280/720?random=3', width: 1280, height: 720 },
+			// { src: 'https://picsum.photos/480/480?random=3', width: 480, height: 480 },
+			// { src: 'https://picsum.photos/480/480?random=3', width: 480, height: 480 },
+			// { src: 'https://picsum.photos/1280/720?random=3', width: 1280, height: 720 },
+			// { src: 'https://picsum.photos/1280/720?random=3', width: 1280, height: 720 },
 			{ src: 'https://picsum.photos/600/500?random=2', width: 600, height: 500 },
 			{ src: 'https://picsum.photos/480/480?random=3', width: 480, height: 480 },
 			{ src: 'https://picsum.photos/2560/480?random=1', width: 2560, height: 480 },

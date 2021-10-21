@@ -16,6 +16,7 @@
 			</template>
 		</Card>
 	</div>
+	<slot name="after"></slot>
 </template>
 <script lang="ts">
 import { defineComponent, ref, onMounted, onUnmounted, watch, reactive, PropType } from 'vue'
