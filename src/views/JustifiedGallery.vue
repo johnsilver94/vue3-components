@@ -1,7 +1,7 @@
 <template>
 	<div class="text-yellow-500 h-40">JustifiedGallery Flickr {{ name }}</div>
 	<div class="flex flex-row">
-		<div class="w-60">
+		<div class="w-80">
 			<p>Some Text</p>
 		</div>
 		<Gallery />

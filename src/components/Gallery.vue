@@ -1,14 +1,14 @@
 <template>
-	<div ref="gallery" class="justifiedgallery">
+	<div ref="gallery" class="gallery">
 		<div
 			v-for="(image, index) of values.thumbs"
 			:key="index"
 			class="jg-item rounded-lg"
 			:style="{ margin: '10px', width: image.size.width + 'px', height: image.size.height + 'px' }"
 		>
-			<div class="jg-item-overlay p-2 flex flex-col justify-between">
+			<div class="jg-item-overlay p-2 flex flex-col justify-between hover:opacity-80">
 				<div>
-					<button class="float-left hover:text-purple-500 hover:bg-white">
+					<button class="float-left hover:text-purple-500 hover:bg-white text-gray-900">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							class="h-6 w-6"
@@ -180,11 +180,15 @@ onBeforeMount(() => {
 
 watch(containerWidth, (newContainerWidth, oldContainerWidth) => {
 	console.log('watch', newContainerWidth, oldContainerWidth)
-	const container = 1592 - 1 // scrollbar == 17 when full page
+	const container = 1600 - 1 // scrollbar == 17 when full page
 
 	console.log(container)
 	values.thumbs = rowLayout({
-		row: { width: container, height: 360, maxItems: 5 },
+		row: {
+			width: container,
+			height: 360,
+			// maxItems: 5,
+		},
 		item: {
 			margin: 10,
 			minWidth: 180,
@@ -201,24 +205,22 @@ const resizeHandler = () => {
 }
 </script>
 <style lang="scss">
-.justifiedgallery {
+.gallery {
 	display: flex !important;
 	flex-wrap: wrap;
-	flex-direction: 'column';
-	max-width: 1280px;
+	flex-direction: 'row';
+	max-width: 1600px;
 }
 
 .jg-item {
 	position: relative;
 	display: flex;
-	// border-width: 0.5px;
 	overflow: hidden;
 
 	.jg-item-content {
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		// overflow: hidden;
 		width: 100%;
 		height: 100%;
 
@@ -227,7 +229,7 @@ const resizeHandler = () => {
 			display: flex;
 			width: inherit;
 			height: inherit;
-			opacity: 0.7;
+			opacity: 0.5;
 			transform: scale(1.5);
 			filter: blur(10px);
 		}
