@@ -24,7 +24,6 @@ const buildPrecedentsMap = (graph: (start: number) => IGraph, startNode: string,
 		const neighboringNodes: IGraph = graph(Number(shortestNodeId)) || {}
 		visited[shortestNodeId] = 1
 
-		console.log('neighboringNodes', neighboringNodes)
 		for (const neighbor in neighboringNodes) {
 			const newTotalWeight: number = shortestNode.weight + neighboringNodes[neighbor]
 
@@ -35,10 +34,7 @@ const buildPrecedentsMap = (graph: (start: number) => IGraph, startNode: string,
 				// @ts-ignore
 				precedentsMap[neighbor] = shortestNodeId
 			}
-			console.log('precedentsMap', precedentsMap)
-			console.log('storedShortestPaths', storedShortestPaths)
 		}
-		console.log('visited', visited)
 	}
 
 	if (typeof storedShortestPaths[endNode] === 'undefined') {
@@ -60,6 +56,5 @@ const optimalDistribution = (precedentsMap: IGraph, endNode: number) => {
 
 export const findRowDistribution = (graph: (start: number) => IGraph, startNode: string, endNode: number): number[] => {
 	const precedentsMap = buildPrecedentsMap(graph, startNode, endNode)
-	console.log('final', precedentsMap)
 	return optimalDistribution(precedentsMap, endNode)
 }

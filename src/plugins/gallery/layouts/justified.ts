@@ -23,7 +23,7 @@ const rowCost = (
 ): number => {
 	const row: IPhoto[] = photos.slice(i, j)
 	const commonHeight: number = rowCommonHeight(row, width, margin)
-	console.log(`commonHeight:${commonHeight}; rowCost: ${Math.pow(Math.abs(commonHeight - targetHeight), 2)}`, row)
+
 	return Math.pow(Math.abs(commonHeight - targetHeight), 2)
 }
 
@@ -39,7 +39,6 @@ const createPotentialRow =
 			// if (commonHeight < targetHeight * 1.5 && commonHeight > targetHeight * 0.75)
 			results[i.toString()] = rowCost(photos, start, i, containerWidth, targetHeight, margin)
 		}
-		console.log('createPotentialRow', results)
 		return results
 	}
 
@@ -65,7 +64,6 @@ export const rowLayout: RowLayoutFunction = ({
 		})
 	}
 
-	console.log('minWidth,maxWidth,maxItems', minWidth, maxWidth, maxItems)
 	const potentialRow = createPotentialRow(height, width, sizes, maxItems, margin)
 
 	let path: number[]
@@ -78,15 +76,11 @@ export const rowLayout: RowLayoutFunction = ({
 
 		while (cheapestRow !== sizes.length) {
 			neighboringNodes = potentialRow(cheapestRow)
-			console.log(neighboringNodes)
 			cheapestRow = getCheapestRow(neighboringNodes)
 			path.push(cheapestRow)
-			console.log(cheapestRow)
 		}
 	}
 	path = path.map((node) => +node)
-
-	console.log(path)
 
 	for (let i = 1; i < path.length; ++i) {
 		const row: IPhoto[] = sizes.slice(path[i - 1], path[i])
@@ -105,7 +99,6 @@ const getCheapestRow = (neighboringNodes: IGraph): number => {
 	let min = Number.MAX_SAFE_INTEGER
 	let minKey = 0
 	for (const [key, value] of Object.entries(neighboringNodes)) {
-		console.log(key, value)
 		if (value > 0 && min > value) {
 			min = value
 			minKey = Number(key)
