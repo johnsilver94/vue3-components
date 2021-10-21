@@ -1,0 +1,35 @@
+#app {
+	font-family: Avenir, Helvetica, Arial, sans-serif;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	text-align: center;
+	color: #2c3e50;
+	margin-top: 60px;
+	justify-content: center;
+	align-content: center;
+}
+
+// Example how to use Tailwindcss in scss
+// h1 {
+// 	@apply text-yellow-500 hover:text-gray-400;
+// }
+
+img {
+	display: inline-block
+}
+
+a {
+	color: #42b983;
+}
+
+label {
+	margin: 0 0.5em;
+	font-weight: bold;
+}
+
+code {
+	background-color: #eee;
+	padding: 2px 4px;
+	border-radius: 4px;
+	color: #304455;
+}

@@ -1,0 +1,29 @@
+{
+	"compilerOptions": {
+		"baseUrl": ".",
+		"target": "esnext",
+		"useDefineForClassFields": true,
+		"module": "esnext",
+		"moduleResolution": "node",
+		"strict": false,
+		"jsx": "preserve",
+		"sourceMap": true,
+		"resolveJsonModule": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"allowJs": true,
+		"lib": ["esnext", "dom"],
+		"paths": {
+			"@assets/*": ["src/assets/*"],
+			"@components/*": ["src/components/*"],
+			"@plugins/*": ["src/plugins/*"],
+			"@store/*": ["src/store/*"],
+			"@styles/*": ["src/styles/*"],
+			"@views/*": ["src/views/*"],
+			"@types/*": ["src/types/*"],
+			"@/*": ["src/*"]
+		},
+		"types": ["vite/client", "node"]
+	},
+	"include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "src/plugins/CubeGallery.js"]
+}

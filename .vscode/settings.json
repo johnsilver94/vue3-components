@@ -1,0 +1,33 @@
+{
+	"files.autoSave": "onWindowChange",
+
+	"editor.formatOnSave": true,
+	"editor.quickSuggestions": {
+		"strings": true
+	},
+	"editor.codeActionsOnSave": {
+		"source.fixAll.eslint": true,
+		"source.fixAll.stylelint": true,
+		"source.fixAll.tslint": true
+	},
+	"css.validate": false,
+	"less.validate": false,
+	"scss.validate": false,
+	"[javascript,javascriptreact, typescript,typescriptreact, json,jsonc, graphql]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[scss,sass,css]": {
+		"editor.defaultFormatter": "stylelint.vscode-stylelint"
+	},
+
+	// tailwindCSS
+	"tailwindCSS.includeLanguages": {
+		"plaintext": "html"
+	},
+
+	// vite
+	"vite.autoStart": true,
+	"vite.browserType": "system",
+	"vite.port": 3000,
+	"vite.open": false
+}
