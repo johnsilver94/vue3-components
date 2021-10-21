@@ -5,7 +5,7 @@
 			<p>Some Text</p>
 		</div>
 		<div class="grid">
-			<div v-for="(image, index) of images" :key="index" class="item m-5">
+			<div v-for="(image, index) of images" :key="index" class="item m-5 rounded-md">
 				<div class="item-overlay p-2 flex flex-col justify-between">
 					<div>
 						<button class="float-left hover:text-purple-500 hover:bg-white">
@@ -194,6 +194,7 @@ const imgLoad = (event: Event) => {
 .item {
 	position: relative;
 	display: flex;
+	overflow: hidden;
 	width: calc(var(--row-height) * var(--ratio) * 1px);
 	max-height: calc(var(--row-height) * 1.5 * 1px);
 	flex-grow: calc(var(--ratio) * 10);
