@@ -34,7 +34,7 @@ export default defineComponent({
 			required: true,
 		},
 	},
-	setup(props) {
+	setup(props): { values: { thumbs: IPhoto[] }; clickCard: () => void } {
 		const values = reactive<{ thumbs: IPhoto[] }>({
 			thumbs: [],
 		})

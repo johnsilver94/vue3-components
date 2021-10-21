@@ -14,12 +14,17 @@ import { useStore } from 'vuex'
 import { key } from '@/store'
 import { IPhoto } from '@/types'
 
+type JustifiedGalleryProps = {
+	name: ComputedRef<string>
+	images: IPhoto[]
+}
+
 export default {
 	name: 'JustifiedGallery',
 	components: {
 		JustifiedLayout,
 	},
-	setup(): { name: ComputedRef<string>; images: IPhoto[] } {
+	setup(): JustifiedGalleryProps {
 		const store = useStore(key)
 
 		const name: ComputedRef<string> = computed(() => {
