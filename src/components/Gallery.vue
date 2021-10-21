@@ -3,8 +3,8 @@
 		<div
 			v-for="(image, index) of values.thumbs"
 			:key="index"
-			class="jg-item"
-			:style="{ margin: '6px', width: image.size.width + 'px', height: image.size.height + 'px' }"
+			class="jg-item rounded-lg"
+			:style="{ margin: '10px', width: image.size.width + 'px', height: image.size.height + 'px' }"
 		>
 			<div class="jg-item-overlay p-2 flex flex-col justify-between">
 				<div>
@@ -68,14 +68,17 @@
 					<p class="text-lg text-white">Some Title</p>
 				</div>
 			</div>
-			<img :src="image.src" class="rounded-md" />
+			<div class="jg-item-content">
+				<img :src="image.src" class="jg-item-background" />
+				<img :src="image.src" class="jg-item-img" />
+			</div>
 		</div>
 	</div>
 </template>
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, onBeforeMount, watch, reactive } from 'vue'
 import { IPhoto, LayoutType } from '@/types'
-import { rowLayout, maxPerRow } from '@/plugins/gallery'
+import { rowLayout } from '@/plugins/gallery'
 
 const images: IPhoto[] = [
 	{ src: 'https://picsum.photos/720/1920?random=1', width: 720, height: 1920 },
@@ -183,7 +186,7 @@ watch(containerWidth, (newContainerWidth, oldContainerWidth) => {
 	values.thumbs = rowLayout({
 		row: { width: container, height: 360, maxItems: 5 },
 		item: {
-			margin: 6,
+			margin: 10,
 			minWidth: 180,
 			maxWidth: 720,
 		},
@@ -207,15 +210,39 @@ const resizeHandler = () => {
 
 .jg-item {
 	position: relative;
-	// display: flex;
-	// flex-grow: 10;
-	// flex-direction: row;
-	// align-content: center;
-	// justify-content: center;
-	// align-items: center;
+	display: flex;
+	// border-width: 0.5px;
+	overflow: hidden;
 
-	img {
+	.jg-item-content {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		// overflow: hidden;
 		width: 100%;
+		height: 100%;
+
+		.jg-item-background {
+			position: absolute;
+			display: flex;
+			width: inherit;
+			height: inherit;
+			opacity: 0.7;
+			transform: scale(1.5);
+			filter: blur(10px);
+		}
+
+		.jg-item-img {
+			z-index: 10;
+			display: block;
+			object-fit: contain;
+		}
+
+		img {
+			display: block;
+			max-width: 100%;
+			max-height: 100%;
+		}
 	}
 }
 

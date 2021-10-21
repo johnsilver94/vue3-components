@@ -49,6 +49,22 @@ export const rowLayout: RowLayoutFunction = ({
 	sizes,
 	layout = LayoutType.Flex,
 }) => {
+	if (minWidth !== width || maxWidth !== width) {
+		const minRatio: number = minWidth / height
+		const maxRatio: number = maxWidth / height
+
+		sizes.forEach((item, i) => {
+			const ratio = aspectRatio(item.width, item.height)
+			if (ratio > maxRatio) {
+				sizes[i].width = maxWidth
+				sizes[i].height = height
+			} else if (ratio < minRatio) {
+				sizes[i].width = minWidth
+				sizes[i].height = height
+			}
+		})
+	}
+
 	console.log('minWidth,maxWidth,maxItems', minWidth, maxWidth, maxItems)
 	const potentialRow = createPotentialRow(height, width, sizes, maxItems, margin)
 
