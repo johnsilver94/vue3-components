@@ -180,16 +180,15 @@ watch(containerWidth, (newContainerWidth, oldContainerWidth) => {
 	const container = 1592 - 1 // scrollbar == 17 when full page
 
 	console.log(container)
-	const limitNodeSearch = maxPerRow(360, container)
-	console.log('limitNodeSearch', limitNodeSearch)
 	values.thumbs = rowLayout({
-		containerWidth: container,
-		limitNodeSearch: limitNodeSearch,
-		targetRowHeight: 360,
-		margin: 6,
-		photos: images,
-		targetItemWidth: 250,
-		layoutType: LayoutType.Naive,
+		row: { width: container, height: 360, maxItems: 5 },
+		item: {
+			margin: 6,
+			minWidth: 180,
+			maxWidth: 720,
+		},
+		sizes: images,
+		layout: LayoutType.Naive,
 	})
 	console.log(values.thumbs)
 })

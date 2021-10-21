@@ -2,6 +2,7 @@ import { aspectRatio, round } from '../utils'
 import { findRowDistribution } from '../rowDistribution'
 import type { RowLayoutFunction, IPhoto, IGraph } from '@/types'
 import { LayoutType } from '@/types'
+import { maxPerRow } from '..'
 
 const rowCommonHeight = (row: IPhoto[], containerWidth: number, margin: number): number => {
 	const rowWidth: number = containerWidth - row.length * (margin * 2)
@@ -43,24 +44,23 @@ const createPotentialRow =
 	}
 
 export const rowLayout: RowLayoutFunction = ({
-	containerWidth,
-	limitNodeSearch,
-	targetRowHeight,
-	margin,
-	photos,
-	layoutType = LayoutType.Flex,
+	row: { width, height, maxItems = maxPerRow(height, width) },
+	item: { margin, minWidth = width, maxWidth = width },
+	sizes,
+	layout = LayoutType.Flex,
 }) => {
-	const potentialRow = createPotentialRow(targetRowHeight, containerWidth, photos, limitNodeSearch, margin)
+	console.log('minWidth,maxWidth,maxItems', minWidth, maxWidth, maxItems)
+	const potentialRow = createPotentialRow(height, width, sizes, maxItems, margin)
 
 	let path: number[]
-	if (layoutType === LayoutType.Flex) {
-		path = findRowDistribution(potentialRow, '0', photos.length)
+	if (layout === LayoutType.Flex) {
+		path = findRowDistribution(potentialRow, '0', sizes.length)
 	} else {
 		path = []
 		let cheapestRow: number
 		let neighboringNodes: IGraph
 
-		while (cheapestRow !== photos.length) {
+		while (cheapestRow !== sizes.length) {
 			neighboringNodes = potentialRow(cheapestRow)
 			console.log(neighboringNodes)
 			cheapestRow = getCheapestRow(neighboringNodes)
@@ -73,16 +73,16 @@ export const rowLayout: RowLayoutFunction = ({
 	console.log(path)
 
 	for (let i = 1; i < path.length; ++i) {
-		const row: IPhoto[] = photos.slice(path[i - 1], path[i])
-		let height: number = rowCommonHeight(row, containerWidth, margin)
-		if (layoutType === LayoutType.Naive && i === path.length - 1 && height > targetRowHeight * 1.25) {
-			height = targetRowHeight
+		const row: IPhoto[] = sizes.slice(path[i - 1], path[i])
+		let rowHeight: number = rowCommonHeight(row, width, margin)
+		if (layout === LayoutType.Naive && i === path.length - 1 && rowHeight > height * 1.25) {
+			rowHeight = height
 		}
 		for (let j = path[i - 1]; j < path[i]; ++j) {
-			photos[j].size = { width: round(height * aspectRatio(photos[j].width, photos[j].height), 1), height: height }
+			sizes[j].size = { width: round(rowHeight * aspectRatio(sizes[j].width, sizes[j].height), 1), height: rowHeight }
 		}
 	}
-	return photos
+	return sizes
 }
 
 const getCheapestRow = (neighboringNodes: IGraph): number => {
