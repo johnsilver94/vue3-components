@@ -1,8 +1,10 @@
 <template>
 	<div class="text-yellow-500 h-40">JustifiedGallery Flickr {{ name }}</div>
 	<div class="flex flex-row">
-		<div class="w-80">
-			<p>Some Text</p>
+		<div class="w-80 min-w-80 flex-shrink-0">
+			<div>
+				<p>Some Text sadfas das dsa das dsa dsa dsa dsadas dsa das dsa d</p>
+			</div>
 		</div>
 		<JustifiedLayout :images="images">
 			<!-- <template #after>

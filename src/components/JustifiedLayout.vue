@@ -1,5 +1,6 @@
 <template>
 	<div ref="gallery" class="gallery">
+		<div v-if="values.containerWidth === 0" ref="gallery">&nbsp;</div>
 		<Card v-for="(image, index) of values.thumbs" :key="index" :image="image" :margin="10" @click="clickCard">
 			<template #inner-description>
 				<div class="h-full bg-gray-400 rounded-md bg-opacity-40 px-2">
@@ -19,7 +20,7 @@
 	<slot name="after"></slot>
 </template>
 <script lang="ts">
-import { defineComponent, ref, onMounted, onUnmounted, watch, reactive, PropType } from 'vue'
+import { defineComponent, ref, onMounted, onUnmounted, onUpdated, reactive, PropType } from 'vue'
 import { IPhoto, LayoutType } from '@/types'
 import { rowLayout } from '@/plugins/gallery'
 import Card from './Card.vue'
@@ -35,32 +36,69 @@ export default defineComponent({
 			required: true,
 		},
 	},
-	setup(props): { values: { thumbs: IPhoto[] }; clickCard: () => void } {
-		const values = reactive<{ thumbs: IPhoto[] }>({
+	setup(props): {
+		values: { thumbs: IPhoto[]; containerWidth: number; observer: ResizeObserver }
+		clickCard: () => void
+		gallery: any
+	} {
+		const values = reactive<{ thumbs: IPhoto[]; containerWidth: number; observer: ResizeObserver }>({
 			thumbs: [],
+			containerWidth: 0,
+			observer: null,
 		})
-
 		const gallery = ref<HTMLDivElement>()
-		const containerWidth = ref<number>(null)
 
 		onMounted(() => {
-			containerWidth.value = gallery?.value?.clientWidth
-			window.addEventListener('resize', resizeHandler)
+			const box = gallery.value
+			const boxSize = box?.getBoundingClientRect()
+
+			initObserver()
+			// window.addEventListener('resize', resizeHandler)
 		})
+
+		// onUpdated(() => {
+		// 	console.log('onUpdated')
+		// 	if (values.observer == null) {
+		// 		console.log('initObserver')
+		// 		initObserver()
+		// 	}
+		// })
 
 		onUnmounted(() => {
-			window.removeEventListener('resize', resizeHandler)
+			if (values.observer !== null) values.observer.unobserve(gallery.value)
+			// window.removeEventListener('resize', resizeHandler)
 		})
 
-		// onBeforeMount(() => {})
+		const initObserver = () => {
+			const obs = new ResizeObserver(onResize)
+			obs.observe(gallery.value)
+			values.observer = obs
+		}
 
-		watch(containerWidth, (newContainerWidth, oldContainerWidth) => {
-			console.log('watch', newContainerWidth, oldContainerWidth)
-			const container = 1600 - 1 // scrollbar == 17 when full page
+		const onResize = () => {
+			const box = gallery.value
+			const width = box.offsetWidth
+			const height = box.offsetHeight
 
+			console.log('resize', { width, height }, box.offsetWidth, box.clientWidth)
+			values.containerWidth = width
+
+			const container = width - 1
+			if (width !== 0) {
+				computeSize(container)
+			}
+		}
+
+		const resizeHandler = () => {
+			values.containerWidth = gallery.value.offsetWidth
+			console.log('resizeHandler', values.containerWidth)
+			computeSize(values.containerWidth)
+		}
+
+		const computeSize = (containerWidth: number): void => {
 			values.thumbs = rowLayout({
 				row: {
-					width: container,
+					width: containerWidth - 1,
 					height: 360,
 					// maxItems: 5,
 				},
@@ -72,19 +110,16 @@ export default defineComponent({
 				sizes: props.images,
 				layout: LayoutType.Naive,
 			})
-		})
-
-		const resizeHandler = () => {
-			containerWidth.value = gallery?.value?.clientWidth
 		}
 
 		const clickCard = () => {
-			containerWidth.value = 1280
+			console.log('Click card')
 		}
 
 		return {
 			values,
 			clickCard,
+			gallery,
 		}
 	},
 })
