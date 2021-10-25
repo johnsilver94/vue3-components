@@ -1,7 +1,7 @@
 <template>
 	<div class="flex flex-col">
 		<div
-			class="card rounded-lg border-1/2 border-gray-200 shadow-lg hover:border-purple-600"
+			class="card rounded-lg border-1/2 border-gray-200 shadow-sm hover:border-purple-600"
 			:style="{ margin: margin + 'px', width: image.size.width + 'px', height: image.size.height + 'px' }"
 		>
 			<div class="card-front p-2 text-gray-900 hover:text-purple-800 bg-gray-800 bg-opacity-0 hover:bg-opacity-40">
@@ -135,9 +135,9 @@ export default defineComponent({
 			position: absolute;
 			width: inherit;
 			height: inherit;
-			opacity: 0.5;
-			transform: scale(1.5);
-			filter: blur(10px);
+			opacity: 0.8;
+			transform: scale(1.2);
+			filter: blur(5px);
 		}
 
 		&-img {

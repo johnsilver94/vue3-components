@@ -4,7 +4,7 @@
 		<div class="w-60">
 			<p>Some Text</p>
 		</div>
-		<div class="grid">
+		<div class="gallery-grid">
 			<div v-for="(image, index) of images" :key="index" class="item m-5 rounded-md">
 				<div class="item-overlay p-2 flex flex-col justify-between">
 					<div>
@@ -181,7 +181,7 @@ const imgLoad = (event: Event) => {
 }
 </script>
 <style lang="scss">
-.grid {
+.gallery-grid {
 	display: flex !important;
 	flex-wrap: wrap;
 	flex-direction: 'column';

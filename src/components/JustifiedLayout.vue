@@ -1,6 +1,6 @@
 <template>
 	<div ref="gallery" class="gallery">
-		<div v-if="values.containerWidth === 0" ref="gallery">&nbsp;</div>
+		<div v-if="values.containerWidth === 0">There are not photos</div>
 		<Card v-for="(image, index) of values.thumbs" :key="index" :image="image" :margin="10" @click="clickCard">
 			<template #inner-description>
 				<div class="h-full bg-gray-400 rounded-md bg-opacity-40 px-2">
@@ -20,7 +20,8 @@
 	<slot name="after"></slot>
 </template>
 <script lang="ts">
-import { defineComponent, ref, onMounted, onUnmounted, onUpdated, reactive, PropType } from 'vue'
+import { defineComponent, ref, onMounted, onUnmounted, reactive, PropType, Ref } from 'vue'
+import { throttle } from 'lodash'
 import { IPhoto, LayoutType } from '@/types'
 import { rowLayout } from '@/plugins/gallery'
 import Card from './Card.vue'
@@ -39,7 +40,7 @@ export default defineComponent({
 	setup(props): {
 		values: { thumbs: IPhoto[]; containerWidth: number; observer: ResizeObserver }
 		clickCard: () => void
-		gallery: any
+		gallery: Ref<HTMLDivElement>
 	} {
 		const values = reactive<{ thumbs: IPhoto[]; containerWidth: number; observer: ResizeObserver }>({
 			thumbs: [],
@@ -49,63 +50,44 @@ export default defineComponent({
 		const gallery = ref<HTMLDivElement>()
 
 		onMounted(() => {
-			const box = gallery.value
-			const boxSize = box?.getBoundingClientRect()
-
 			initObserver()
-			// window.addEventListener('resize', resizeHandler)
 		})
-
-		// onUpdated(() => {
-		// 	console.log('onUpdated')
-		// 	if (values.observer == null) {
-		// 		console.log('initObserver')
-		// 		initObserver()
-		// 	}
-		// })
 
 		onUnmounted(() => {
 			if (values.observer !== null) values.observer.unobserve(gallery.value)
-			// window.removeEventListener('resize', resizeHandler)
 		})
 
 		const initObserver = () => {
-			const obs = new ResizeObserver(onResize)
+			const obs = new ResizeObserver(throttle(onResize, 500))
 			obs.observe(gallery.value)
 			values.observer = obs
 		}
 
 		const onResize = () => {
 			const box = gallery.value
-			const width = box.offsetWidth
-			const height = box.offsetHeight
+			const { offsetWidth, offsetHeight } = box
 
-			console.log('resize', { width, height }, box.offsetWidth, box.clientWidth)
-			values.containerWidth = width
+			console.log('resize', { offsetWidth, offsetHeight }, box.offsetWidth, box.clientWidth)
+			if (values.containerWidth !== offsetWidth && offsetWidth !== 0) {
+				values.containerWidth = offsetWidth
 
-			const container = width - 1
-			if (width !== 0) {
+				const container = offsetWidth
 				computeSize(container)
 			}
 		}
 
-		const resizeHandler = () => {
-			values.containerWidth = gallery.value.offsetWidth
-			console.log('resizeHandler', values.containerWidth)
-			computeSize(values.containerWidth)
-		}
-
 		const computeSize = (containerWidth: number): void => {
+			console.log('computeSize', containerWidth)
 			values.thumbs = rowLayout({
 				row: {
 					width: containerWidth - 1,
-					height: 360,
+					height: 240, // 240 if containerWidth is < 700
 					// maxItems: 5,
 				},
 				item: {
 					margin: 10,
-					minWidth: 180,
-					maxWidth: 720,
+					minWidth: 120, // optimal to be 1/2 from row.height
+					maxWidth: 360, // optimal to be 1 + 1/2 from row.height
 				},
 				sizes: props.images,
 				layout: LayoutType.Naive,
@@ -129,6 +111,5 @@ export default defineComponent({
 	display: flex !important;
 	flex-wrap: wrap;
 	flex-direction: 'row';
-	max-width: 1600px;
 }
 </style>

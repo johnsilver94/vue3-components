@@ -26,11 +26,13 @@
 		"flickr-justified-gallery": "^2.0.0",
 		"justified-layout": "^4.1.0",
 		"lightgallery": "^2.2.1",
+		"lodash": "^4.17.21",
 		"vue": "^3.2.16",
 		"vue-router": "4",
 		"vuex": "^4.0.2"
 	},
 	"devDependencies": {
+		"@types/lodash": "^4.14.176",
 		"@types/node": "^16.10.9",
 		"@typescript-eslint/eslint-plugin": "^4.33.0",
 		"@typescript-eslint/parser": "^4.33.0",
