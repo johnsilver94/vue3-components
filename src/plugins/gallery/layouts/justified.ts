@@ -7,7 +7,7 @@ import { maxPerRow } from '..'
 const rowCommonHeight = (row: IPhoto[], containerWidth: number, margin: number): number => {
 	const rowWidth: number = containerWidth - row.length * (margin * 2)
 	const totalAspectRatio: number = row.reduce(
-		(acc: number, photo: IPhoto) => acc + aspectRatio(photo.width, photo.height),
+		(acc: number, photo: IPhoto) => acc + aspectRatio(photo.size.width, photo.size.height),
 		0
 	)
 	return rowWidth / totalAspectRatio
@@ -53,13 +53,14 @@ export const rowLayout: RowLayoutFunction = ({
 		const maxRatio: number = maxWidth / height
 
 		sizes.forEach((item, i) => {
-			const ratio = aspectRatio(item.width, item.height)
+			const ratio: number = aspectRatio(item.width, item.height)
 			if (ratio > maxRatio) {
-				sizes[i].width = maxWidth
-				sizes[i].height = height
+				sizes[i].size = { width: maxWidth, height: height }
 			} else if (ratio < minRatio) {
-				sizes[i].width = minWidth
-				sizes[i].height = height
+				sizes[i].size = { width: minWidth, height: height }
+			} else {
+				const { width, height } = sizes[i]
+				sizes[i].size = { width, height }
 			}
 		})
 	}
@@ -89,7 +90,10 @@ export const rowLayout: RowLayoutFunction = ({
 			rowHeight = height
 		}
 		for (let j = path[i - 1]; j < path[i]; ++j) {
-			sizes[j].size = { width: round(rowHeight * aspectRatio(sizes[j].width, sizes[j].height), 1), height: rowHeight }
+			sizes[j].size = {
+				width: round(rowHeight * aspectRatio(sizes[j].size.width, sizes[j].size.height), 1),
+				height: rowHeight,
+			}
 		}
 	}
 	return sizes

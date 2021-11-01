@@ -1,7 +1,14 @@
 <template>
 	<div ref="gallery" class="gallery">
-		<div v-if="values.containerWidth === 0">There are not photos</div>
-		<Card v-for="(image, index) of values.thumbs" :key="index" :image="image" :margin="10" @click="clickCard">
+		<div v-if="containerWidth === 0">There are no photos</div>
+		<Card
+			v-for="(image, index) of thumbs"
+			:key="index"
+			:image="image"
+			:margin="10"
+			@click="clickCard"
+			@click:card-settings="cardSettingsHandler($event)"
+		>
 			<template #inner-description>
 				<div class="h-full bg-gray-400 rounded-md bg-opacity-40 px-2">
 					<p class="text-lg text-white">Another Title</p>
@@ -20,11 +27,27 @@
 	<slot name="after"></slot>
 </template>
 <script lang="ts">
-import { defineComponent, ref, onMounted, onUnmounted, reactive, PropType, Ref } from 'vue'
+import { defineComponent, ref, onMounted, onUnmounted, reactive, PropType, Ref, toRefs } from 'vue'
 import { throttle } from 'lodash'
 import { IPhoto, LayoutType } from '@/types'
 import { rowLayout } from '@/plugins/gallery'
 import Card from './Card.vue'
+
+type Values = {
+	thumbs: IPhoto[]
+	containerWidth: number
+	observer: ResizeObserver
+}
+
+type Res = {
+	thumbs: Ref<IPhoto[]>
+	containerWidth: Ref<number>
+	observer: Ref<ResizeObserver>
+	clickCard: () => void
+	gallery: Ref<HTMLDivElement>
+	cardSettingsHandler: (image: IPhoto) => void
+	computeSize: (containerWidth: number) => void
+}
 
 export default defineComponent({
 	name: 'JustifiedLayout',
@@ -37,12 +60,9 @@ export default defineComponent({
 			required: true,
 		},
 	},
-	setup(props): {
-		values: { thumbs: IPhoto[]; containerWidth: number; observer: ResizeObserver }
-		clickCard: () => void
-		gallery: Ref<HTMLDivElement>
-	} {
-		const values = reactive<{ thumbs: IPhoto[]; containerWidth: number; observer: ResizeObserver }>({
+	emits: ['update:sizes'],
+	setup(props, { emit }): Res {
+		const values = reactive<Values>({
 			thumbs: [],
 			containerWidth: 0,
 			observer: null,
@@ -58,12 +78,13 @@ export default defineComponent({
 		})
 
 		const initObserver = () => {
-			const obs = new ResizeObserver(throttle(onResize, 500))
+			const obs = new ResizeObserver(throttle(onResize, 1000))
 			obs.observe(gallery.value)
 			values.observer = obs
 		}
 
 		const onResize = () => {
+			if (!gallery.value) return
 			const box = gallery.value
 			const { offsetWidth, offsetHeight } = box
 
@@ -78,30 +99,39 @@ export default defineComponent({
 
 		const computeSize = (containerWidth: number): void => {
 			console.log('computeSize', containerWidth)
-			values.thumbs = rowLayout({
+			const sizes = rowLayout({
 				row: {
 					width: containerWidth - 1,
-					height: 240, // 240 if containerWidth is < 700
+					height: 360, // 240 if containerWidth is < 700
 					// maxItems: 5,
 				},
 				item: {
 					margin: 10,
-					minWidth: 120, // optimal to be 1/2 from row.height
-					maxWidth: 360, // optimal to be 1 + 1/2 from row.height
+					minWidth: 180, // optimal to be 1/2 from row.height
+					maxWidth: 480, // optimal to be 1 + 1/2 from row.height
 				},
 				sizes: props.images,
 				layout: LayoutType.Naive,
 			})
+
+			values.thumbs = sizes
+			emit('update:sizes', sizes)
 		}
 
 		const clickCard = () => {
 			console.log('Click card')
 		}
 
+		const cardSettingsHandler = (image: IPhoto): void => {
+			console.log(image, typeof image)
+		}
+
 		return {
-			values,
+			...toRefs(values),
 			clickCard,
 			gallery,
+			cardSettingsHandler,
+			computeSize,
 		}
 	},
 })

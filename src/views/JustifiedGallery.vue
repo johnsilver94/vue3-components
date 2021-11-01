@@ -6,7 +6,7 @@
 				<p>Some Text sadfas das dsa das dsa dsa dsa dsadas dsa das dsa d</p>
 			</div>
 		</div>
-		<JustifiedLayout :images="images">
+		<JustifiedLayout :images="images" @update:sizes="sizesHandler($event)">
 			<!-- <template #after>
 				<div><p class="font-semibold text-xl text-gray-900">Crocodile</p></div>
 			</template> -->
@@ -23,6 +23,7 @@ import { IPhoto } from '@/types'
 type JustifiedGalleryProps = {
 	name: ComputedRef<string>
 	images: IPhoto[]
+	sizesHandler: (sizes: IPhoto[]) => void
 }
 
 export default {
@@ -114,7 +115,11 @@ export default {
 			{ src: 'https://picsum.photos/480/2560?random=1', width: 480, height: 2560 },
 		]
 
-		return { name, images }
+		const sizesHandler = (sizes: IPhoto[]): void => {
+			console.log(sizes)
+		}
+
+		return { name, images, sizesHandler }
 	},
 }
 </script>

@@ -6,7 +6,7 @@
 		>
 			<div class="card-front p-2 text-gray-900 hover:text-purple-800 bg-gray-800 bg-opacity-0 hover:bg-opacity-40">
 				<div class="">
-					<button class="float-left hover:bg-white rounded-md p-0.5">
+					<button class="float-left hover:bg-white rounded-md p-0.5" @click="clickCardSettings(image)">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							class="h-6 w-6"
@@ -80,6 +80,7 @@ import { IPhoto } from '@/types'
 
 type CardProps = {
 	croco: string
+	clickCardSettings: (image: IPhoto) => void
 }
 
 export default defineComponent({
@@ -94,10 +95,15 @@ export default defineComponent({
 			required: true,
 		},
 	},
-	setup(): CardProps {
+	emits: ['click:cardSettings'],
+	setup(props, { emit }): CardProps {
 		const croco = 'sasdsds'
 
-		return { croco }
+		const clickCardSettings = (image: IPhoto): void => {
+			emit('click:cardSettings', image)
+		}
+
+		return { croco, clickCardSettings }
 	},
 })
 </script>
@@ -128,6 +134,8 @@ export default defineComponent({
 		display: flex;
 		justify-content: center;
 		align-items: center;
+		flex-grow: 20;
+		flex-shrink: 2;
 		width: 100%;
 		height: 100%;
 
@@ -136,14 +144,17 @@ export default defineComponent({
 			width: inherit;
 			height: inherit;
 			opacity: 0.8;
-			transform: scale(1.2);
+			transform: scale(1.5);
 			filter: blur(5px);
 		}
 
 		&-img {
 			max-width: 100%;
 			max-height: 100%;
+			// max-width: fit-content;
+			// max-height: fit-content;
 			object-fit: contain;
+			object-position: center;
 			z-index: 10;
 		}
 	}

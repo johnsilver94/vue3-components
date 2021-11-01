@@ -5,7 +5,11 @@
 			<p>Some Text</p>
 		</div>
 		<div class="gallery-grid">
-			<div v-for="(image, index) of images" :key="index" class="item m-5 rounded-md">
+			<div
+				v-for="(image, index) of images"
+				:key="index"
+				class="item m-5 rounded-md border-1/2 border-gray-200 shadow-sm hover:border-purple-600"
+			>
 				<div class="item-overlay p-2 flex flex-col justify-between">
 					<div>
 						<button class="float-left hover:text-purple-500 hover:bg-white">
@@ -221,7 +225,10 @@ const imgLoad = (event: Event) => {
 		.item-img {
 			z-index: 10;
 			display: block;
-			object-fit: contain;
+			// object-fit: contain;
+			object-fit: cover;
+			// max-height: inherit;
+			// height: inherit;
 		}
 
 		img {
