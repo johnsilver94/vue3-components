@@ -23,9 +23,6 @@
 		"*": "prettier -w -u"
 	},
 	"dependencies": {
-		"flickr-justified-gallery": "^2.0.0",
-		"justified-layout": "^4.1.0",
-		"lightgallery": "^2.2.1",
 		"lodash": "^4.17.21",
 		"vue": "^3.2.16",
 		"vue-router": "4",
