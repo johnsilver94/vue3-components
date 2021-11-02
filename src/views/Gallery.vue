@@ -4,8 +4,12 @@
 		<div class="w-60">
 			<p>Some Text</p>
 		</div>
-		<div class="grid">
-			<div v-for="(image, index) of images" :key="index" class="item m-2">
+		<div class="gallery-grid">
+			<div
+				v-for="(image, index) of images"
+				:key="index"
+				class="item m-5 rounded-md border-1/2 border-gray-200 shadow-sm hover:border-purple-600"
+			>
 				<div class="item-overlay p-2 flex flex-col justify-between">
 					<div>
 						<button class="float-left hover:text-purple-500 hover:bg-white">
@@ -68,7 +72,10 @@
 						<p class="text-lg text-white">Some Title</p>
 					</div>
 				</div>
-				<img :src="image.src" class="rounded-md" @load="imgLoad" />
+				<div class="item-content">
+					<img :src="image.src" class="item-img" @load="imgLoad" />
+					<img :src="image.src" class="background rounded-md" />
+				</div>
 			</div>
 		</div>
 	</div>
@@ -80,74 +87,81 @@ import { key } from '@/store'
 
 const store = useStore(key)
 
-const images: { src: string }[] = [
-	{ src: 'https://picsum.photos/1920/1080?random=1' },
-	{ src: 'https://picsum.photos/1080/1920?random=1' },
-	{ src: 'https://picsum.photos/1080/1920?random=1' },
-	{ src: 'https://picsum.photos/480/2560?random=1' },
-	{ src: 'https://picsum.photos/2560/480?random=1' },
-	{ src: 'https://picsum.photos/2560/480?random=1' },
-	{ src: 'https://picsum.photos/480/1920?random=1' },
-	{ src: 'https://picsum.photos/1920/480?random=1' },
-	{ src: 'https://picsum.photos/480/1920?random=1' },
-	{ src: 'https://picsum.photos/480/480?random=1' },
-	{ src: 'https://picsum.photos/1280/720?random=1' },
-	{ src: 'https://picsum.photos/500/500?random=1' },
-	{ src: 'https://picsum.photos/600/480?random=1' },
-	{ src: 'https://picsum.photos/800/500?random=1' },
-	{ src: 'https://picsum.photos/480/480?random=1' },
-	{ src: 'https://picsum.photos/480/480?random=1' },
-	{ src: 'https://picsum.photos/900/480?random=1' },
-	{ src: 'https://picsum.photos/600/480?random=1' },
-	{ src: 'https://picsum.photos/480/960?random=1' },
-	{ src: 'https://picsum.photos/480/720?random=1' },
-	{ src: 'https://picsum.photos/480/480?random=1' },
-	{ src: 'https://picsum.photos/480/480?random=1' },
-	{ src: 'https://picsum.photos/720/480?random=1' },
-	{ src: 'https://picsum.photos/480/720?random=1' },
-	{ src: 'https://picsum.photos/480/720?random=1' },
-	{ src: 'https://picsum.photos/480/480?random=1' },
-	{ src: 'https://picsum.photos/600/600?random=1' },
-	{ src: 'https://picsum.photos/600/600?random=1' },
-	{ src: 'https://picsum.photos/480/720?random=2' },
-	{ src: 'https://picsum.photos/480/480?random=2' },
-	{ src: 'https://picsum.photos/480/480?random=2' },
-	{ src: 'https://picsum.photos/1280/480?random=2' },
-	{ src: 'https://picsum.photos/960/480?random=2' },
-	{ src: 'https://picsum.photos/960/480?random=2' },
-	{ src: 'https://picsum.photos/480/480?random=2' },
-	{ src: 'https://picsum.photos/480/480?random=2' },
-	{ src: 'https://picsum.photos/500/480?random=2' },
-	{ src: 'https://picsum.photos/600/480?random=2' },
-	{ src: 'https://picsum.photos/480/480?random=2' },
-	{ src: 'https://picsum.photos/480/480?random=2' },
-	{ src: 'https://picsum.photos/500/500?random=2' },
-	{ src: 'https://picsum.photos/600/480?random=2' },
-	{ src: 'https://picsum.photos/480/500?random=2' },
-	{ src: 'https://picsum.photos/480/500?random=2' },
-	{ src: 'https://picsum.photos/480/500?random=2' },
-	{ src: 'https://picsum.photos/500/500?random=2' },
-	{ src: 'https://picsum.photos/600/500?random=2' },
-	{ src: 'https://picsum.photos/480/480?random=3' },
-	{ src: 'https://picsum.photos/480/480?random=3' },
-	{ src: 'https://picsum.photos/480/480?random=3' },
-	{ src: 'https://picsum.photos/480/480?random=3' },
-	{ src: 'https://picsum.photos/960/480?random=3' },
-	{ src: 'https://picsum.photos/1280/920?random=3' },
-	{ src: 'https://picsum.photos/480/480?random=3' },
-	{ src: 'https://picsum.photos/480/480?random=3' },
-	{ src: 'https://picsum.photos/720/480?random=3' },
-	{ src: 'https://picsum.photos/720/480?random=3' },
-	{ src: 'https://picsum.photos/480/960?random=3' },
-	{ src: 'https://picsum.photos/480/480?random=3' },
-	{ src: 'https://picsum.photos/480/480?random=3' },
-	{ src: 'https://picsum.photos/480/480?random=3' },
-	{ src: 'https://picsum.photos/720/480?random=3' },
-	{ src: 'https://picsum.photos/480/1280?random=3' },
-	{ src: 'https://picsum.photos/480/960?random=3' },
-	{ src: 'https://picsum.photos/480/480?random=3' },
-	{ src: 'https://picsum.photos/480/480?random=3' },
-	{ src: 'https://picsum.photos/1280/720?random=3' },
+const images: { src: string; width: number; height: number }[] = [
+	{ src: 'https://picsum.photos/720/1920?random=1', width: 720, height: 1920 },
+	{ src: 'https://picsum.photos/720/1920?random=1', width: 720, height: 1920 },
+	{ src: 'https://picsum.photos/1920/600?random=1', width: 1920, height: 600 },
+	{ src: 'https://picsum.photos/1920/1080?random=1', width: 1920, height: 1080 },
+	{ src: 'https://picsum.photos/1080/1920?random=1', width: 1080, height: 1920 },
+	{ src: 'https://picsum.photos/1080/1920?random=1', width: 1080, height: 1920 },
+	{ src: 'https://picsum.photos/480/2560?random=1', width: 480, height: 2560 },
+	{ src: 'https://picsum.photos/2560/480?random=1', width: 2560, height: 480 },
+	{ src: 'https://picsum.photos/2560/480?random=1', width: 2560, height: 480 },
+	{ src: 'https://picsum.photos/480/1920?random=1', width: 480, height: 1920 },
+	{ src: 'https://picsum.photos/1920/480?random=1', width: 1920, height: 480 },
+	{ src: 'https://picsum.photos/480/1920?random=1', width: 480, height: 1920 },
+	{ src: 'https://picsum.photos/480/480?random=1', width: 480, height: 480 },
+	{ src: 'https://picsum.photos/1280/720?random=1', width: 1280, height: 720 },
+	{ src: 'https://picsum.photos/500/500?random=1', width: 500, height: 500 },
+	{ src: 'https://picsum.photos/600/480?random=1', width: 600, height: 480 },
+	{ src: 'https://picsum.photos/800/500?random=1', width: 800, height: 500 },
+	{ src: 'https://picsum.photos/480/480?random=1', width: 480, height: 480 },
+	{ src: 'https://picsum.photos/480/480?random=1', width: 480, height: 480 },
+	{ src: 'https://picsum.photos/900/480?random=1', width: 900, height: 480 },
+	{ src: 'https://picsum.photos/600/480?random=1', width: 600, height: 480 },
+	{ src: 'https://picsum.photos/480/960?random=1', width: 480, height: 960 },
+	{ src: 'https://picsum.photos/480/720?random=1', width: 480, height: 720 },
+	{ src: 'https://picsum.photos/480/480?random=1', width: 480, height: 480 },
+	{ src: 'https://picsum.photos/480/480?random=1', width: 480, height: 480 },
+	{ src: 'https://picsum.photos/720/480?random=1', width: 720, height: 480 },
+	{ src: 'https://picsum.photos/480/720?random=1', width: 480, height: 720 },
+	{ src: 'https://picsum.photos/480/720?random=1', width: 480, height: 720 },
+	{ src: 'https://picsum.photos/480/480?random=1', width: 480, height: 480 },
+	{ src: 'https://picsum.photos/600/600?random=1', width: 600, height: 600 },
+	{ src: 'https://picsum.photos/600/600?random=1', width: 600, height: 600 },
+	{ src: 'https://picsum.photos/480/720?random=2', width: 480, height: 720 },
+	{ src: 'https://picsum.photos/480/480?random=2', width: 480, height: 480 },
+	{ src: 'https://picsum.photos/480/480?random=2', width: 480, height: 480 },
+	{ src: 'https://picsum.photos/1280/480?random=2', width: 1280, height: 480 },
+	{ src: 'https://picsum.photos/960/480?random=2', width: 960, height: 480 },
+	{ src: 'https://picsum.photos/960/480?random=2', width: 960, height: 480 },
+	{ src: 'https://picsum.photos/480/480?random=2', width: 480, height: 480 },
+	{ src: 'https://picsum.photos/480/480?random=2', width: 480, height: 480 },
+	{ src: 'https://picsum.photos/500/480?random=2', width: 500, height: 480 },
+	{ src: 'https://picsum.photos/600/480?random=2', width: 600, height: 480 },
+	{ src: 'https://picsum.photos/480/480?random=2', width: 480, height: 480 },
+	{ src: 'https://picsum.photos/480/480?random=2', width: 480, height: 480 },
+	{ src: 'https://picsum.photos/500/500?random=2', width: 500, height: 500 },
+	{ src: 'https://picsum.photos/600/480?random=2', width: 600, height: 480 },
+	{ src: 'https://picsum.photos/480/500?random=2', width: 480, height: 500 },
+	{ src: 'https://picsum.photos/480/500?random=2', width: 480, height: 500 },
+	{ src: 'https://picsum.photos/480/500?random=2', width: 480, height: 500 },
+	{ src: 'https://picsum.photos/500/500?random=2', width: 500, height: 500 },
+	{ src: 'https://picsum.photos/600/500?random=2', width: 600, height: 500 },
+	{ src: 'https://picsum.photos/960/480?random=3', width: 960, height: 480 },
+	{ src: 'https://picsum.photos/1280/920?random=3', width: 1280, height: 920 },
+	{ src: 'https://picsum.photos/480/480?random=3', width: 480, height: 480 },
+	{ src: 'https://picsum.photos/480/480?random=3', width: 480, height: 480 },
+	{ src: 'https://picsum.photos/720/480?random=3', width: 720, height: 480 },
+	{ src: 'https://picsum.photos/720/480?random=3', width: 720, height: 480 },
+	{ src: 'https://picsum.photos/480/960?random=3', width: 480, height: 960 },
+	{ src: 'https://picsum.photos/480/480?random=3', width: 480, height: 480 },
+	{ src: 'https://picsum.photos/480/480?random=3', width: 480, height: 480 },
+	{ src: 'https://picsum.photos/480/480?random=3', width: 480, height: 480 },
+	{ src: 'https://picsum.photos/720/480?random=3', width: 720, height: 480 },
+	{ src: 'https://picsum.photos/480/1280?random=3', width: 480, height: 1280 },
+	{ src: 'https://picsum.photos/480/960?random=3', width: 480, height: 960 },
+	{ src: 'https://picsum.photos/480/480?random=3', width: 480, height: 480 },
+	{ src: 'https://picsum.photos/480/480?random=3', width: 480, height: 480 },
+	{ src: 'https://picsum.photos/1280/720?random=3', width: 1280, height: 720 },
+	{ src: 'https://picsum.photos/1280/720?random=3', width: 1280, height: 720 },
+	{ src: 'https://picsum.photos/600/500?random=2', width: 600, height: 500 },
+	{ src: 'https://picsum.photos/480/480?random=3', width: 480, height: 480 },
+	{ src: 'https://picsum.photos/2560/480?random=1', width: 2560, height: 480 },
+	{ src: 'https://picsum.photos/480/1280?random=3', width: 480, height: 1280 },
+	{ src: 'https://picsum.photos/480/1280?random=3', width: 480, height: 1280 },
+	{ src: 'https://picsum.photos/480/2560?random=1', width: 480, height: 2560 },
+	{ src: 'https://picsum.photos/480/2560?random=1', width: 480, height: 2560 },
 ]
 
 const name = computed(() => {
@@ -158,48 +172,71 @@ const ratio = { min: 0.5, max: 2 }
 
 const imgLoad = (event: Event) => {
 	let img = event.target as HTMLImageElement
-	let imgRatio = img.naturalHeight / img.naturalWidth
+	let imgRatio = img.naturalWidth / img.naturalHeight
+	let gRatio = img.naturalWidth / img.naturalHeight
 	if (imgRatio < ratio.min) {
-		img.parentElement?.style.setProperty('--item-ratio', ratio.min.toString())
+		gRatio = ratio.min
 	}
 	if (imgRatio > ratio.max) {
-		img.parentElement?.style.setProperty('--item-ratio', ratio.max.toString())
+		gRatio = ratio.max
 	}
-
-	img.parentElement?.style.setProperty('--img-ratio', ratio.max.toString())
+	img.parentElement?.parentElement?.style.setProperty('--img-ratio', imgRatio.toString())
+	img.parentElement?.parentElement?.style.setProperty('--ratio', gRatio.toString())
 }
 </script>
 <style lang="scss">
-.grid {
-	width: 1280px;
+.gallery-grid {
 	display: flex !important;
 	flex-wrap: wrap;
-	flex-direction: row;
-	align-content: center;
-	justify-content: center;
-	align-items: center;
+	flex-direction: 'column';
+	max-width: 1280px;
 
-	--row-height: 250; /* Minimal row height */
-	--item-ratio: 1; /* Default aspect ratio for photos that are not loaded yet */
-	--img-ratio: 1; // image default ratio
-
-	&::after {
-		content: '';
-		flex-grow: 99999;
-	}
+	--row-height: 200;
+	--ratio: 1;
 }
 
 .item {
 	position: relative;
-	flex: calc(var(--row-height) / var(--item-ratio));
-	min-width: calc(var(--row-height) / var(--item-ratio) * 1px);
-	max-height: calc(var(--row-height) * var(--img-ratio) * 1px);
 	display: flex;
-	// flex-grow: calc(var(--ratio) * 10);
+	overflow: hidden;
+	width: calc(var(--row-height) * var(--ratio) * 1px);
+	max-height: calc(var(--row-height) * 1.5 * 1px);
+	flex-grow: calc(var(--ratio) * 10);
 
-	img {
-		width: auto;
-		min-width: calc(var(--row-height) / var(--img-ratio) * 1px);
+	.item-content {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		width: 100%;
+		height: 100%;
+
+		.background {
+			position: absolute;
+			display: flex;
+			// height: 100%;
+			// object-fit: fill;
+			width: inherit;
+			height: inherit;
+			opacity: 0.7;
+			// transform: scale(1);
+			filter: blur(8px);
+		}
+
+		.item-img {
+			z-index: 10;
+			display: block;
+			// object-fit: contain;
+			object-fit: cover;
+			// max-height: inherit;
+			// height: inherit;
+		}
+
+		img {
+			display: block;
+			max-width: 100%;
+			max-height: 100%;
+			flex-grow: calc(var(--img-ratio) * 10);
+		}
 	}
 }
 
