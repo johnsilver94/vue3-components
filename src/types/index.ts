@@ -27,16 +27,6 @@ enum LayoutType {
 	Flex,
 }
 
-// type RowLayout = {
-// 	containerWidth: number
-// 	limitNodeSearch: number
-// 	targetRowHeight: number
-// 	margin: number
-// 	photos: IPhoto[]
-// 	targetItemWidth: number
-// 	layout?: LayoutType
-// }
-
 type RowLayout = {
 	sizes: IPhoto[]
 	row: {
