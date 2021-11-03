@@ -1,81 +1,118 @@
 <template>
 	<div ref="cursorArea" class="cursor-area bg-white">
-		<div
-			class="cursor"
-			:style="{ left: coordinates.x + 'px', bottom: coordinates.y + 'px' }"
-			@mousedown="mouseDown"
-			@mousemove="mouseMove"
-			@mouseup="mouseUp"
-			@mouseleave="mouseUp"
-		/>
+		<div class="cursor" :style="{ left: x + 'px', bottom: y + 'px' }" @mousedown="mouseDown" />
 	</div>
 </template>
 <script lang="ts">
-import { defineComponent, onMounted, PropType, ref, Ref, reactive } from '@vue/runtime-core'
+import { defineComponent, onMounted, PropType, ref, Ref, toRefs, reactive } from '@vue/runtime-core'
 import { throttle, clamp } from 'lodash'
+import { type } from 'os'
+
+type XCoordinates = {
+	x: number
+	y?: number
+}
+
+type YCoordinates = {
+	x?: number
+	y: number
+}
+
+type XYCoordinates = {
+	x: number
+	y: number
+}
+
+type ICoordinates = XCoordinates | YCoordinates | XYCoordinates
+
+enum DragDirection {
+	X = 'XAxis',
+	Y = 'YAxis',
+	XY = 'XYAxis',
+}
+
+const pickerRadius = 16 / 2
 
 export default defineComponent({
 	name: 'CursorArea',
 	props: {
 		position: {
-			type: Object as PropType<{ x: number; y: number }>,
+			type: Object as PropType<ICoordinates>,
 			required: true,
+		},
+		direction: {
+			type: String as PropType<DragDirection>,
+			default: DragDirection.XY,
 		},
 	},
 	emits: [],
 	setup(props, { emit }) {
-		let dragging = false
-		const coordinates = reactive({
+		const coordinates = reactive<XYCoordinates>({
 			x: 0,
 			y: 0,
 		})
-		let area: { x: number; y: number; width: number; height: number; offsetX: number; offsetY: number } = null
+		let area: { x: number; y: number; width: number; height: number; clientX: number; offsetY: number } = null
 		const cursorArea = ref<HTMLDivElement>()
 
 		onMounted(() => {
-			console.log(props.position, cursorArea.value.getBoundingClientRect())
-			coordinates.x = props.position.x - 16 / 2
-			coordinates.y = props.position.y - 16 / 2
-
+			console.log(props.position, props.direction)
 			area = cursorArea.value.getBoundingClientRect().toJSON()
 			console.log('areea', area)
+
+			switch (props.direction) {
+				case DragDirection.X:
+					console.log('X Area')
+					coordinates.x = props.position.x - pickerRadius
+					coordinates.y = area.height / 2 - pickerRadius
+					break
+				case DragDirection.Y:
+					console.log('Y Area')
+					break
+				default:
+					console.log('XY Area')
+					coordinates.x = props.position.x - pickerRadius
+					coordinates.y = props.position.y - pickerRadius
+			}
 		})
 
 		const mouseDown = throttle((e: MouseEvent): void => {
-			dragging = true
-			console.log('mouseDown', e.offsetX, e.offsetY)
-			area.offsetX = e.offsetX
-			area.offsetY = e.offsetY
+			document.documentElement.addEventListener('mousemove', mouseMove, true)
+			document.documentElement.addEventListener('mouseup', mouseUp, true)
 		}, 5)
 
 		const mouseMove = throttle((e: MouseEvent): void => {
-			if (dragging) {
-				console.log('mouseMove', e, e.clientX, e.clientY, coordinates)
+			console.log(area.y, e.clientY)
 
-				const x = coordinates.x + e.offsetX - area.offsetX
-				const y = coordinates.y - (e.offsetY + area.offsetY)
+			const dx = e.clientX - area.x - pickerRadius
+			const dy = area.height - (e.clientY - area.y + pickerRadius)
 
-				// coordinates.y = clamp(y, 0 + 16 / 2, area.height - 16 / 2)
-				// coordinates.x = clamp(x, 0 + 16 / 2, area.width - 16 / 2)
-
-				coordinates.x += e.offsetX - area.offsetX
-				coordinates.y -= e.offsetY - area.offsetY
-
-				console.log(x, y, coordinates.x, coordinates.y)
+			switch (props.direction) {
+				case DragDirection.X:
+					coordinates.x = clamp(dx, 0 - pickerRadius, area.width - pickerRadius)
+					break
+				case DragDirection.Y:
+					coordinates.y = clamp(dy, 0 - pickerRadius, area.height - pickerRadius)
+					break
+				default:
+					coordinates.y = clamp(dy, 0 - pickerRadius, area.height - pickerRadius)
+					coordinates.x = clamp(dx, 0 - pickerRadius, area.width - pickerRadius)
+					console.log(coordinates.x, coordinates.y)
 			}
 		}, 5)
 
 		const mouseUp = throttle((e: MouseEvent): void => {
-			console.log('mouseUp', e.offsetX, e.offsetY)
-			dragging = false
+			document.documentElement.removeEventListener('mousemove', mouseMove, true)
+			document.documentElement.removeEventListener('mouseup', mouseUp, true)
 		}, 5)
-		return { cursorArea, coordinates, mouseDown, mouseMove, mouseUp }
+
+		return { cursorArea, ...toRefs(coordinates), mouseDown, mouseMove, mouseUp }
 	},
 })
 </script>
 <style lang="scss">
 .cursor-area {
 	position: relative;
+	user-select: none;
 	width: inherit;
 	height: inherit;
 }
