@@ -16,10 +16,11 @@
 					},
 					areaClass: 'picker-gradient',
 					areaStyle: {
-						backgroundColor: 'blue',
+						backgroundColor: pickerColor,
 					},
 				}"
 				:axis="Axis.XY"
+				@update:values="pickerUpdateHandler($event)"
 			/>
 			<XYSlider
 				class="h-auto w-4"
@@ -62,11 +63,12 @@
 					class="w-auto h-5 my-2"
 					:slider="{
 						size: 20,
-						position: { x: 0.5 },
+						position: { x: h },
 						mode: SliderMode.INSIDE,
 						areaClass: 'hue-area',
 					}"
 					:axis="Axis.X"
+					@update:values="hueUpdateHandler($event)"
 				/>
 				<div class="w-auto h-5 my-2 opacity-area bg-white">
 					<XYSlider
@@ -84,6 +86,7 @@
 							},
 						}"
 						:axis="Axis.X"
+						@update:values="alphaUpdateHandler($event)"
 					/>
 				</div>
 			</div>
@@ -92,30 +95,85 @@
 	</div>
 </template>
 <script lang="ts">
-import { defineComponent } from '@vue/runtime-core'
+import tinycolor, { ColorFormats } from 'tinycolor2'
+import { defineComponent, onMounted, reactive } from '@vue/runtime-core'
 import XYSlider from '@components/XYSlider.vue'
+import { Axis, SliderMode } from '@/types/slider'
+import type { XYCoordinates } from '@/types/slider'
+import { computed, toRefs } from 'vue'
 
 export default defineComponent({
 	name: 'ColorPicker',
 	components: {
 		XYSlider,
 	},
-	// props: {},
+	props: {
+		color: {
+			type: String,
+			// default: 'rgb(172 213 73 / 55%);',
+			// default: 'rgba(124, 51, 52, 0.62)',
+			// default: 'rgba(130, 65, 65, 0.82)',
+			// default: 'rgba(130, 65, 80, 1)',
+			default: 'rgba(65, 118, 130, 1)',
+		},
+	},
 	emits: [],
-	setup() {
-		enum Axis {
-			X = 'x',
-			Y = 'y',
-			XY = 'xy',
+	setup(props) {
+		const decomposedColor = reactive<ColorFormats.HSVA>({
+			h: 0,
+			s: 0,
+			v: 0,
+			a: 0,
+		})
+
+		onMounted(() => {
+			console.log(props.color)
+			decomposedColor.h = tinycolor(props.color).toHsv().h / 360
+			decomposedColor.s = tinycolor(props.color).toHsv().s
+			decomposedColor.v = tinycolor(props.color).toHsv().v
+			decomposedColor.a = tinycolor(props.color).toHsv().a
+
+			console.log(decomposedColor)
+		})
+
+		const hueColor = computed((): string => {
+			return tinycolor({ h: decomposedColor.h, s: decomposedColor.s, v: decomposedColor.v, a: 1 }).toHslString()
+		})
+
+		const pickerColor = computed((): string => {
+			return tinycolor({ h: decomposedColor.h, s: decomposedColor.s, v: decomposedColor.v, a: 1 }).toRgbString()
+		})
+
+		const alphaColor = computed((): string => {
+			return ''
+		})
+
+		const previewColor = computed((): string => {
+			return ''
+		})
+
+		const hueUpdateHandler = (value: XYCoordinates): void => {
+			decomposedColor.h = value.x
 		}
 
-		enum SliderMode {
-			INSIDE = 'i',
-			OUTSIDE = 'o',
-			SEMI = 's',
+		const alphaUpdateHandler = (value: XYCoordinates): void => {
+			decomposedColor.a = value.x
 		}
 
-		return { Axis, SliderMode }
+		const pickerUpdateHandler = (value: XYCoordinates): void => {
+			decomposedColor.s = value.x
+			decomposedColor.v = value.y
+		}
+
+		return {
+			Axis,
+			SliderMode,
+			...toRefs(decomposedColor),
+			hueUpdateHandler,
+			alphaUpdateHandler,
+			pickerUpdateHandler,
+			pickerColor,
+		}
 	},
 })
 </script>

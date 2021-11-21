@@ -23,7 +23,9 @@
 		"*": "prettier -w -u"
 	},
 	"dependencies": {
+		"@types/tinycolor2": "^1.4.3",
 		"lodash": "^4.17.21",
+		"tinycolor2": "^1.4.2",
 		"vue": "^3.2.16",
 		"vue-router": "4",
 		"vuex": "^4.0.2"

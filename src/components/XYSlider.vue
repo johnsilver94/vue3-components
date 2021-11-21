@@ -1,10 +1,5 @@
 <template>
 	<div ref="areaRef" :class="['area bg-white', slider.areaClass]" :style="[slider.areaStyle]" @click.self="mouseClick">
-		<!-- <div class="area2" :style="[slider.areaStyle]"> -->
-		<!-- <div
-			class="slider"
-			tabindex="0"
-			role="slider"/> -->
 		<div
 			:class="['slider', slider.class]"
 			:style="[
@@ -18,49 +13,14 @@
 			]"
 			@mousedown="mouseDown"
 		/>
-		<!-- </div> -->
 	</div>
 </template>
 <script lang="ts">
 import { defineComponent, onMounted, PropType, ref, Ref, reactive } from '@vue/runtime-core'
 import { clamp } from 'lodash'
 import { computed, ComputedRef, CSSProperties, toRefs } from 'vue'
-
-type XYCoordinates =
-	| {
-			x: number
-			y: number
-	  }
-	| {
-			x?: number
-			y: number
-	  }
-	| {
-			x: number
-			y?: number
-	  }
-
-enum Axis {
-	X = 'x',
-	Y = 'y',
-	XY = 'xy',
-}
-
-enum SliderMode {
-	INSIDE = 'i',
-	OUTSIDE = 'o',
-	SEMI = 's',
-}
-
-type Slider = {
-	size: number
-	position: XYCoordinates
-	mode?: SliderMode
-	style?: CSSProperties
-	class?: string
-	areaStyle?: CSSProperties
-	areaClass?: string
-}
+import type { XYCoordinates, Slider } from '@/types/slider'
+import { Axis, SliderMode } from '@/types/slider'
 
 type Res = {
 	areaRef: Ref<HTMLDivElement>
@@ -100,6 +60,7 @@ export default defineComponent({
 			min: 0,
 			max: 0,
 		})
+		let moveRange: { min: number; max: number; total: number } = { min: 0, max: 100, total: 100 }
 		let areaSize: DOMRect = null
 		const areaRef = ref<HTMLDivElement>()
 
@@ -118,16 +79,19 @@ export default defineComponent({
 				case SliderMode.INSIDE:
 					baseSliderPosition.min = 0
 					baseSliderPosition.max = size
+					moveRange = { min: 0, max: width - size, total: props.axis === Axis.Y ? height - size : width - size }
 					// console.log('SliderMode.INSIDE', baseSliderPosition)
 					break
 				case SliderMode.OUTSIDE:
 					// console.log('SliderMode.OUTSIDE', baseSliderPosition)
 					baseSliderPosition.min = size
 					baseSliderPosition.max = 0
+					moveRange = { min: 0 - size, max: width, total: props.axis === Axis.Y ? height + size : width + size }
 					break
 				default:
 					baseSliderPosition.min = size / 2
 					baseSliderPosition.max = size / 2
+					moveRange = { min: 0 - size / 2, max: width - size / 2, total: props.axis === Axis.Y ? height : width }
 				// console.log('SliderMode.SEMI', baseSliderPosition)
 			}
 
@@ -183,18 +147,21 @@ export default defineComponent({
 		const mouseMoveX = (e: MouseEvent) => {
 			// console.log('mouseMoveX')
 			const { clientX } = e
-			const { x, width } = areaSize
+			const { x } = areaSize
 			const {
 				slider: { size },
 			} = props
 
+			// get center of slider
 			const dx = clientX - x - size / 2
 
-			coordinates.x = clamp(dx, 0 - baseSliderPosition.min, width - baseSliderPosition.max)
+			console.log(`clientX: ${clientX}; x: ${x}`, e, areaSize)
 
-			// console.log(`x:${coordinates.x};y:${coordinates.y}`)
+			coordinates.x = clamp(dx, moveRange.min, moveRange.max)
 
-			emit('update:values', { x: (coordinates.x + size) / width, y: coordinates.y })
+			console.log(`x:${coordinates.x};y:${coordinates.y}`, coordinates.x + moveRange.min)
+
+			emit('update:values', { x: (coordinates.x - moveRange.min) / moveRange.total, y: coordinates.y })
 		}
 
 		const mouseMoveY = (e: MouseEvent): void => {
@@ -207,10 +174,12 @@ export default defineComponent({
 
 			const dy = height - (clientY - y + size / 2)
 
-			coordinates.y = clamp(dy, 0 - baseSliderPosition.min, height - baseSliderPosition.max)
+			console.log(`clientY: ${clientY}; y: ${y}`, e, areaSize)
 
-			// console.log(`x:${coordinates.x};y:${coordinates.y}`)
-			emit('update:values', { ...coordinates })
+			coordinates.y = clamp(dy, moveRange.min, height - baseSliderPosition.max)
+
+			console.log(`x:${coordinates.x};y:${coordinates.y}`, moveRange)
+			emit('update:values', { x: coordinates.x, y: (coordinates.y - moveRange.min) / moveRange.total })
 		}
 
 		const mouseMoveXY = (e: MouseEvent): void => {
@@ -244,7 +213,7 @@ export default defineComponent({
 
 			switch (props.axis) {
 				case Axis.X:
-					coordinates.x = clamp(dx, 0 - size / 2, width - size / 2)
+					coordinates.x = clamp(dx, moveRange.min, moveRange.max)
 					break
 				case Axis.Y:
 					coordinates.y = clamp(dy, 0 - size / 2, height - size / 2)
@@ -255,7 +224,10 @@ export default defineComponent({
 			}
 			//console.log(`x:${coordinates.x};y:${coordinates.y}`)
 
-			emit('update:values', { ...coordinates })
+			emit('update:values', {
+				x: (coordinates.x - moveRange.min) / moveRange.total,
+				y: (coordinates.y - moveRange.min) / moveRange.total,
+			})
 		}
 
 		const sliderComputed = computed((): CSSProperties => {

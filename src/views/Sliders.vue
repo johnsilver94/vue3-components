@@ -27,6 +27,7 @@
 						class: 'slider-ex',
 					}"
 					:axis="Axis.X"
+					@update:values="changeHandler($event)"
 				/>
 			</div>
 			<div class="inline-flex flex-col items-center">
@@ -40,6 +41,7 @@
 						class: 'slider-ex',
 					}"
 					:axis="Axis.X"
+					@update:values="changeHandler($event)"
 				/>
 			</div>
 			<div class="inline-flex flex-col items-center">
@@ -53,6 +55,7 @@
 						class: 'slider-ex',
 					}"
 					:axis="Axis.Y"
+					@update:values="changeHandler($event)"
 				/>
 			</div>
 			<div class="inline-flex flex-col items-center">
@@ -66,6 +69,7 @@
 						class: 'slider-ex',
 					}"
 					:axis="Axis.Y"
+					@update:values="changeHandler($event)"
 				/>
 			</div>
 			<div class="inline-flex flex-col items-center">
@@ -79,6 +83,7 @@
 						class: 'slider-ex',
 					}"
 					:axis="Axis.Y"
+					@update:values="changeHandler($event)"
 				/>
 			</div>
 			<div class="inline-flex flex-col items-center">
@@ -92,6 +97,7 @@
 						class: 'picker',
 					}"
 					:axis="Axis.XY"
+					@update:values="changeHandler($event)"
 				/>
 			</div>
 			<div class="inline-flex flex-col items-center">
@@ -105,6 +111,7 @@
 						class: 'picker',
 					}"
 					:axis="Axis.XY"
+					@update:values="changeHandler($event)"
 				/>
 			</div>
 			<div class="inline-flex flex-col items-center">
@@ -118,6 +125,7 @@
 						class: 'picker',
 					}"
 					:axis="Axis.XY"
+					@update:values="changeHandler($event)"
 				/>
 			</div>
 		</div>
