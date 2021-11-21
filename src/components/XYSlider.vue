@@ -1,7 +1,12 @@
 <template>
-	<div ref="areaRef" class="area bg-white" :style="[slider.areaStyle]" @click="mouseClick">
-		<div
+	<div ref="areaRef" :class="['area bg-white', slider.areaClass]" :style="[slider.areaStyle]" @click.self="mouseClick">
+		<!-- <div class="area2" :style="[slider.areaStyle]"> -->
+		<!-- <div
 			class="slider"
+			tabindex="0"
+			role="slider"/> -->
+		<div
+			:class="['slider', slider.class]"
 			:style="[
 				slider.style,
 				{
@@ -13,11 +18,12 @@
 			]"
 			@mousedown="mouseDown"
 		/>
+		<!-- </div> -->
 	</div>
 </template>
 <script lang="ts">
 import { defineComponent, onMounted, PropType, ref, Ref, reactive } from '@vue/runtime-core'
-import { throttle, clamp } from 'lodash'
+import { clamp } from 'lodash'
 import { computed, ComputedRef, CSSProperties, toRefs } from 'vue'
 
 type XYCoordinates =
@@ -40,11 +46,20 @@ enum Axis {
 	XY = 'xy',
 }
 
+enum SliderMode {
+	INSIDE = 'i',
+	OUTSIDE = 'o',
+	SEMI = 's',
+}
+
 type Slider = {
 	size: number
 	position: XYCoordinates
+	mode?: SliderMode
 	style?: CSSProperties
+	class?: string
 	areaStyle?: CSSProperties
+	areaClass?: string
 }
 
 type Res = {
@@ -66,6 +81,7 @@ export default defineComponent({
 			default: {
 				size: 18,
 				position: { x: 0, y: 0 },
+				mode: SliderMode.SEMI,
 			},
 		},
 		axis: {
@@ -74,19 +90,23 @@ export default defineComponent({
 			default: Axis.XY,
 		},
 	},
-	emits: [],
-	setup(props): Res {
+	emits: ['update:values'],
+	setup(props, { emit }): Res {
 		const coordinates = reactive<XYCoordinates>({
 			x: 0,
 			y: 0,
+		})
+		const baseSliderPosition = reactive<{ min: number; max: number }>({
+			min: 0,
+			max: 0,
 		})
 		let areaSize: DOMRect = null
 		const areaRef = ref<HTMLDivElement>()
 
 		onMounted(() => {
-			console.log(props.slider.position, props.axis)
+			// console.log(props.slider.position, props.axis, props.slider.mode)
 			areaSize = { ...areaRef.value.getBoundingClientRect().toJSON() }
-			console.log('area', areaSize)
+			// console.log('area', areaSize)
 
 			const {
 				size,
@@ -94,8 +114,26 @@ export default defineComponent({
 			} = props.slider
 			const { width, height } = areaSize
 
+			switch (props.slider.mode) {
+				case SliderMode.INSIDE:
+					baseSliderPosition.min = 0
+					baseSliderPosition.max = size
+					// console.log('SliderMode.INSIDE', baseSliderPosition)
+					break
+				case SliderMode.OUTSIDE:
+					// console.log('SliderMode.OUTSIDE', baseSliderPosition)
+					baseSliderPosition.min = size
+					baseSliderPosition.max = 0
+					break
+				default:
+					baseSliderPosition.min = size / 2
+					baseSliderPosition.max = size / 2
+				// console.log('SliderMode.SEMI', baseSliderPosition)
+			}
+
 			switch (props.axis) {
 				case Axis.X:
+					// console.log(height, size)
 					coordinates.x = x * width - size / 2
 					coordinates.y = (height - size) / 2
 					break
@@ -109,7 +147,7 @@ export default defineComponent({
 			}
 		})
 
-		const mouseDown = throttle((): void => {
+		const mouseDown = (): void => {
 			switch (props.axis) {
 				case Axis.X:
 					document.documentElement.addEventListener('mousemove', mouseMoveX, true)
@@ -123,9 +161,10 @@ export default defineComponent({
 					document.documentElement.addEventListener('mousemove', mouseMoveXY, true)
 					document.documentElement.addEventListener('mouseup', mouseUp, true)
 			}
-		}, 5)
+		}
 
-		const mouseUp = throttle((): void => {
+		const mouseUp = (): void => {
+			// console.log('mouseUp', props.axis)
 			switch (props.axis) {
 				case Axis.X:
 					document.documentElement.removeEventListener('mousemove', mouseMoveX, true)
@@ -139,9 +178,10 @@ export default defineComponent({
 					document.documentElement.removeEventListener('mousemove', mouseMoveXY, true)
 					document.documentElement.removeEventListener('mouseup', mouseUp, true)
 			}
-		}, 5)
+		}
 
-		const mouseMoveX = throttle((e: MouseEvent): void => {
+		const mouseMoveX = (e: MouseEvent) => {
+			// console.log('mouseMoveX')
 			const { clientX } = e
 			const { x, width } = areaSize
 			const {
@@ -150,12 +190,15 @@ export default defineComponent({
 
 			const dx = clientX - x - size / 2
 
-			coordinates.x = clamp(dx, 0 - size / 2, width - size / 2)
+			coordinates.x = clamp(dx, 0 - baseSliderPosition.min, width - baseSliderPosition.max)
 
-			console.log(`x:${coordinates.x};y:${coordinates.y}`)
-		}, 5)
+			// console.log(`x:${coordinates.x};y:${coordinates.y}`)
 
-		const mouseMoveY = throttle((e: MouseEvent): void => {
+			emit('update:values', { x: (coordinates.x + size) / width, y: coordinates.y })
+		}
+
+		const mouseMoveY = (e: MouseEvent): void => {
+			// console.log('mouseMoveY')
 			const { clientY } = e
 			const { y, height } = areaSize
 			const {
@@ -164,12 +207,14 @@ export default defineComponent({
 
 			const dy = height - (clientY - y + size / 2)
 
-			coordinates.y = clamp(dy, 0 - size / 2, height - size / 2)
+			coordinates.y = clamp(dy, 0 - baseSliderPosition.min, height - baseSliderPosition.max)
 
-			console.log(`x:${coordinates.x};y:${coordinates.y}`)
-		}, 5)
+			// console.log(`x:${coordinates.x};y:${coordinates.y}`)
+			emit('update:values', { ...coordinates })
+		}
 
-		const mouseMoveXY = throttle((e: MouseEvent): void => {
+		const mouseMoveXY = (e: MouseEvent): void => {
+			// console.log('mouseMoveXY', baseSliderPosition)
 			const { clientX, clientY } = e
 			const { x, y, width, height } = areaSize
 			const {
@@ -179,13 +224,15 @@ export default defineComponent({
 			const dx = clientX - x - size / 2
 			const dy = height - (clientY - y + size / 2)
 
-			coordinates.y = clamp(dy, 0 - size / 2, height - size / 2)
-			coordinates.x = clamp(dx, 0 - size / 2, width - size / 2)
+			coordinates.y = clamp(dy, 0 - baseSliderPosition.min, height - baseSliderPosition.max)
+			coordinates.x = clamp(dx, 0 - baseSliderPosition.min, width - baseSliderPosition.max)
 
-			console.log(`x:${coordinates.x};y:${coordinates.y}`)
-		}, 5)
+			// console.log(`x:${coordinates.x};y:${coordinates.y}`)
+			emit('update:values', { ...coordinates })
+		}
 
-		const mouseClick = throttle((e: MouseEvent): void => {
+		const mouseClick = (e: MouseEvent) => {
+			// console.log('mouseClick')
 			const { offsetX, offsetY } = e
 			const { width, height } = areaSize
 			const {
@@ -206,8 +253,10 @@ export default defineComponent({
 					coordinates.y = clamp(dy, 0 - size / 2, height - size / 2)
 					coordinates.x = clamp(dx, 0 - size / 2, width - size / 2)
 			}
-			console.log(`x:${coordinates.x};y:${coordinates.y}`)
-		}, 5)
+			//console.log(`x:${coordinates.x};y:${coordinates.y}`)
+
+			emit('update:values', { ...coordinates })
+		}
 
 		const sliderComputed = computed((): CSSProperties => {
 			const { size } = props.slider
@@ -230,10 +279,15 @@ export default defineComponent({
 	width: inherit;
 	height: inherit;
 }
+
 .slider {
 	position: absolute;
 	box-sizing: border-box;
 	border-radius: 50%;
 	border: 2px solid gray;
+
+	&:active {
+		transform: scale(1.2);
+	}
 }
 </style>
