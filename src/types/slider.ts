@@ -21,9 +21,9 @@ enum Axis {
 }
 
 enum SliderMode {
-	INSIDE = 'i',
-	OUTSIDE = 'o',
-	SEMI = 's',
+	INSIDE = 'inside',
+	OUTSIDE = 'outside',
+	SEMI = 'semi',
 }
 
 type Slider = {
@@ -36,5 +36,7 @@ type Slider = {
 	areaClass?: string
 }
 
-export type { XYCoordinates, Slider }
+type Range = { min: number; max: number; total: number }
+
+export type { XYCoordinates, Slider, Range }
 export { Axis, SliderMode }

@@ -13,7 +13,7 @@
 						class: 'slider-ex',
 					}"
 					:axis="Axis.X"
-					@update:values="changeHandler($event)"
+					@update:coordinates="changeHandler($event)"
 				/>
 			</div>
 			<div class="inline-flex flex-col items-center">
@@ -27,7 +27,7 @@
 						class: 'slider-ex',
 					}"
 					:axis="Axis.X"
-					@update:values="changeHandler($event)"
+					@update:coordinates="changeHandler($event)"
 				/>
 			</div>
 			<div class="inline-flex flex-col items-center">
@@ -41,7 +41,7 @@
 						class: 'slider-ex',
 					}"
 					:axis="Axis.X"
-					@update:values="changeHandler($event)"
+					@update:coordinates="changeHandler($event)"
 				/>
 			</div>
 			<div class="inline-flex flex-col items-center">
@@ -55,7 +55,7 @@
 						class: 'slider-ex',
 					}"
 					:axis="Axis.Y"
-					@update:values="changeHandler($event)"
+					@update:coordinates="changeHandler($event)"
 				/>
 			</div>
 			<div class="inline-flex flex-col items-center">
@@ -69,7 +69,7 @@
 						class: 'slider-ex',
 					}"
 					:axis="Axis.Y"
-					@update:values="changeHandler($event)"
+					@update:coordinates="changeHandler($event)"
 				/>
 			</div>
 			<div class="inline-flex flex-col items-center">
@@ -83,7 +83,7 @@
 						class: 'slider-ex',
 					}"
 					:axis="Axis.Y"
-					@update:values="changeHandler($event)"
+					@update:coordinates="changeHandler($event)"
 				/>
 			</div>
 			<div class="inline-flex flex-col items-center">
@@ -97,7 +97,7 @@
 						class: 'picker',
 					}"
 					:axis="Axis.XY"
-					@update:values="changeHandler($event)"
+					@update:coordinates="changeHandler($event)"
 				/>
 			</div>
 			<div class="inline-flex flex-col items-center">
@@ -111,7 +111,7 @@
 						class: 'picker',
 					}"
 					:axis="Axis.XY"
-					@update:values="changeHandler($event)"
+					@update:coordinates="changeHandler($event)"
 				/>
 			</div>
 			<div class="inline-flex flex-col items-center">
@@ -125,7 +125,7 @@
 						class: 'picker',
 					}"
 					:axis="Axis.XY"
-					@update:values="changeHandler($event)"
+					@update:coordinates="changeHandler($event)"
 				/>
 			</div>
 		</div>
@@ -136,24 +136,14 @@ import { defineComponent, reactive } from '@vue/runtime-core'
 import { toRefs } from 'vue'
 import XYSlider from '@components/XYSlider.vue'
 
+import { Axis, SliderMode } from '@/types/slider'
+
 export default defineComponent({
 	name: 'Sliders',
 	components: {
 		XYSlider,
 	},
 	setup() {
-		enum Axis {
-			X = 'x',
-			Y = 'y',
-			XY = 'xy',
-		}
-
-		enum SliderMode {
-			INSIDE = 'i',
-			OUTSIDE = 'o',
-			SEMI = 's',
-		}
-
 		const values = reactive({ h: 0.5 })
 
 		const changeHandler = (values: { x: number; y: number }): void => {

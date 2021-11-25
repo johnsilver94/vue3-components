@@ -1,32 +1,20 @@
 <template>
 	<div ref="areaRef" :class="['area bg-white', slider.areaClass]" :style="[slider.areaStyle]" @click.self="mouseClick">
-		<div
-			:class="['slider', slider.class]"
-			:style="[
-				slider.style,
-				{
-					left: x + 'px',
-					bottom: y + 'px',
-					width: slider.size + 'px',
-					height: slider.size + 'px',
-				},
-			]"
-			@mousedown="mouseDown"
-		/>
+		<div :class="['slider', slider.class]" :style="[slider.style, sliderComputedStyle]" @mousedown="mouseDown" />
 	</div>
 </template>
 <script lang="ts">
-import { defineComponent, onMounted, PropType, ref, Ref, reactive } from '@vue/runtime-core'
+import { defineComponent, onMounted, PropType, ref, Ref, reactive, SetupContext } from '@vue/runtime-core'
 import { clamp } from 'lodash'
 import { computed, ComputedRef, CSSProperties, toRefs } from 'vue'
 import type { XYCoordinates, Slider } from '@/types/slider'
-import { Axis, SliderMode } from '@/types/slider'
+import { Axis, SliderMode, Range } from '@/types/slider'
 
 type Res = {
 	areaRef: Ref<HTMLDivElement>
 	x?: Ref<number>
 	y?: Ref<number>
-	sliderComputed: ComputedRef<CSSProperties>
+	sliderComputedStyle: ComputedRef<CSSProperties>
 	mouseDown: (e: MouseEvent) => void
 	mouseClick: (e: MouseEvent) => void
 }
@@ -50,25 +38,24 @@ export default defineComponent({
 			default: Axis.XY,
 		},
 	},
-	emits: ['update:values'],
-	setup(props, { emit }): Res {
+	emits: ['update:coordinates'],
+	setup(props, { emit }: SetupContext): Res {
 		const coordinates = reactive<XYCoordinates>({
 			x: 0,
 			y: 0,
 		})
-		const baseSliderPosition = reactive<{ min: number; max: number }>({
-			min: 0,
-			max: 0,
-		})
-		let moveRange: { min: number; max: number; total: number } = { min: 0, max: 100, total: 100 }
+		let moveRangeDeviation: Range = { min: 0, max: 0, total: 0 }
 		let areaSize: DOMRect = null
 		const areaRef = ref<HTMLDivElement>()
+		let translateSlider = ''
 
 		onMounted(() => {
-			// console.log(props.slider.position, props.axis, props.slider.mode)
 			areaSize = { ...areaRef.value.getBoundingClientRect().toJSON() }
-			// console.log('area', areaSize)
 
+			setCoordinates()
+		})
+
+		const setCoordinates = (): void => {
 			const {
 				size,
 				position: { x, y },
@@ -77,40 +64,32 @@ export default defineComponent({
 
 			switch (props.slider.mode) {
 				case SliderMode.INSIDE:
-					baseSliderPosition.min = 0
-					baseSliderPosition.max = size
-					moveRange = { min: 0, max: width - size, total: props.axis === Axis.Y ? height - size : width - size }
-					// console.log('SliderMode.INSIDE', baseSliderPosition)
+					moveRangeDeviation = { min: size / 2, max: -size / 2, total: -size }
 					break
 				case SliderMode.OUTSIDE:
-					// console.log('SliderMode.OUTSIDE', baseSliderPosition)
-					baseSliderPosition.min = size
-					baseSliderPosition.max = 0
-					moveRange = { min: 0 - size, max: width, total: props.axis === Axis.Y ? height + size : width + size }
+					moveRangeDeviation = { min: 0 - size / 2, max: size / 2, total: size }
 					break
 				default:
-					baseSliderPosition.min = size / 2
-					baseSliderPosition.max = size / 2
-					moveRange = { min: 0 - size / 2, max: width - size / 2, total: props.axis === Axis.Y ? height : width }
-				// console.log('SliderMode.SEMI', baseSliderPosition)
+					moveRangeDeviation = { min: 0, max: 0, total: 0 }
 			}
 
 			switch (props.axis) {
 				case Axis.X:
-					// console.log(height, size)
-					coordinates.x = x * width - size / 2
+					coordinates.x = x * (width + moveRangeDeviation.total) + moveRangeDeviation.min
 					coordinates.y = (height - size) / 2
+					translateSlider = `translateX(-${size / 2}px)`
 					break
 				case Axis.Y:
 					coordinates.x = (width - size) / 2
-					coordinates.y = y * height - size / 2
+					coordinates.y = y * height
+					translateSlider = `translateY(${size / 2}px)`
 					break
 				default:
-					coordinates.x = x * width - size / 2
-					coordinates.y = y * height - size / 2
+					coordinates.x = x * width
+					coordinates.y = y * height
+					translateSlider = `translate(-${size / 2}px,${size / 2}px)`
 			}
-		})
-
+		}
 		const mouseDown = (): void => {
 			switch (props.axis) {
 				case Axis.X:
@@ -145,102 +124,129 @@ export default defineComponent({
 		}
 
 		const mouseMoveX = (e: MouseEvent) => {
-			// console.log('mouseMoveX')
 			const { clientX } = e
-			const { x } = areaSize
-			const {
-				slider: { size },
-			} = props
+			const { x, width } = areaSize
 
-			// get center of slider
-			const dx = clientX - x - size / 2
+			// get slider center of mass
+			const dx = clientX - x
 
-			console.log(`clientX: ${clientX}; x: ${x}`, e, areaSize)
+			// x coordinates must have value in range [0 + moveRangeDeviation.min, width + moveRangeDeviation.max]
+			coordinates.x = clamp(dx, 0 + moveRangeDeviation.min, width + moveRangeDeviation.max)
 
-			coordinates.x = clamp(dx, moveRange.min, moveRange.max)
-
-			console.log(`x:${coordinates.x};y:${coordinates.y}`, coordinates.x + moveRange.min)
-
-			emit('update:values', { x: (coordinates.x - moveRange.min) / moveRange.total, y: coordinates.y })
+			const coordinatesRes: XYCoordinates = {
+				x: (coordinates.x - moveRangeDeviation.min) / (width + moveRangeDeviation.total),
+			}
+			emit('update:coordinates', coordinatesRes)
 		}
 
 		const mouseMoveY = (e: MouseEvent): void => {
-			// console.log('mouseMoveY')
 			const { clientY } = e
 			const { y, height } = areaSize
-			const {
-				slider: { size },
-			} = props
 
-			const dy = height - (clientY - y + size / 2)
+			// get slider center of mass
+			const dy = height - (clientY - y)
 
-			console.log(`clientY: ${clientY}; y: ${y}`, e, areaSize)
+			coordinates.y = clamp(dy, 0 + moveRangeDeviation.min, height + moveRangeDeviation.max)
 
-			coordinates.y = clamp(dy, moveRange.min, height - baseSliderPosition.max)
+			const coordinatesRes: XYCoordinates = {
+				y: (coordinates.y - moveRangeDeviation.min) / (height + moveRangeDeviation.total),
+			}
 
-			console.log(`x:${coordinates.x};y:${coordinates.y}`, moveRange)
-			emit('update:values', { x: coordinates.x, y: (coordinates.y - moveRange.min) / moveRange.total })
+			emit('update:coordinates', coordinatesRes)
 		}
 
 		const mouseMoveXY = (e: MouseEvent): void => {
-			// console.log('mouseMoveXY', baseSliderPosition)
 			const { clientX, clientY } = e
 			const { x, y, width, height } = areaSize
-			const {
-				slider: { size },
-			} = props
 
-			const dx = clientX - x - size / 2
-			const dy = height - (clientY - y + size / 2)
+			// get slider center of mass
+			const dx = clientX - x
+			const dy = height - (clientY - y)
 
-			coordinates.y = clamp(dy, 0 - baseSliderPosition.min, height - baseSliderPosition.max)
-			coordinates.x = clamp(dx, 0 - baseSliderPosition.min, width - baseSliderPosition.max)
+			coordinates.y = clamp(dy, 0 + moveRangeDeviation.min, height + moveRangeDeviation.max)
+			coordinates.x = clamp(dx, 0 + moveRangeDeviation.min, width + moveRangeDeviation.max)
 
-			// console.log(`x:${coordinates.x};y:${coordinates.y}`)
-			emit('update:values', { ...coordinates })
+			const coordinatesRes: XYCoordinates = {
+				x: (coordinates.x - moveRangeDeviation.min) / (width + moveRangeDeviation.total),
+				y: (coordinates.y - moveRangeDeviation.min) / (height + moveRangeDeviation.total),
+			}
+
+			emit('update:coordinates', coordinatesRes)
+		}
+
+		const mouseClickX = (e: MouseEvent): void => {
+			const { offsetX } = e
+			const { width } = areaSize
+
+			const dx = offsetX
+			let coordinatesRes: XYCoordinates
+
+			coordinates.x = clamp(dx, 0 + moveRangeDeviation.min, width + moveRangeDeviation.max)
+			coordinatesRes = {
+				x: (coordinates.x - moveRangeDeviation.min) / (width + moveRangeDeviation.total),
+			}
+
+			emit('update:coordinates', coordinatesRes)
+		}
+
+		const mouseClickY = (e: MouseEvent): void => {
+			const { offsetY } = e
+			const { height } = areaSize
+
+			const dy = height - offsetY
+
+			let coordinatesRes: XYCoordinates
+
+			coordinates.y = clamp(dy, 0 + moveRangeDeviation.min, height + moveRangeDeviation.max)
+			coordinatesRes = { y: (coordinates.y - moveRangeDeviation.min) / (height + moveRangeDeviation.total) }
+
+			emit('update:coordinates', coordinatesRes)
+		}
+
+		const mouseClickXY = (e: MouseEvent): void => {
+			const { offsetX, offsetY } = e
+			const { width, height } = areaSize
+
+			const dx = offsetX
+			const dy = height - offsetY
+
+			let coordinatesRes: XYCoordinates
+
+			coordinates.x = clamp(dx, 0 + moveRangeDeviation.min, width + moveRangeDeviation.max)
+			coordinates.y = clamp(dy, 0 + moveRangeDeviation.min, height + moveRangeDeviation.max)
+
+			coordinatesRes = {
+				x: (coordinates.x - moveRangeDeviation.min) / (width + moveRangeDeviation.total),
+				y: (coordinates.y - moveRangeDeviation.min) / (height + moveRangeDeviation.total),
+			}
+
+			emit('update:coordinates', coordinatesRes)
 		}
 
 		const mouseClick = (e: MouseEvent) => {
-			// console.log('mouseClick')
-			const { offsetX, offsetY } = e
-			const { width, height } = areaSize
-			const {
-				slider: { size },
-			} = props
-
-			const dx = offsetX - size / 2
-			const dy = height - offsetY - size / 2
-
 			switch (props.axis) {
 				case Axis.X:
-					coordinates.x = clamp(dx, moveRange.min, moveRange.max)
-					break
+					return mouseClickX(e)
 				case Axis.Y:
-					coordinates.y = clamp(dy, 0 - size / 2, height - size / 2)
-					break
+					return mouseClickY(e)
 				default:
-					coordinates.y = clamp(dy, 0 - size / 2, height - size / 2)
-					coordinates.x = clamp(dx, 0 - size / 2, width - size / 2)
+					return mouseClickXY(e)
 			}
-			//console.log(`x:${coordinates.x};y:${coordinates.y}`)
-
-			emit('update:values', {
-				x: (coordinates.x - moveRange.min) / moveRange.total,
-				y: (coordinates.y - moveRange.min) / moveRange.total,
-			})
 		}
 
-		const sliderComputed = computed((): CSSProperties => {
+		const sliderComputedStyle = computed((): CSSProperties => {
 			const { size } = props.slider
+
 			return {
 				left: coordinates.x + 'px',
 				bottom: coordinates.y + 'px',
 				width: size + 'px',
 				height: size + 'px',
+				transform: translateSlider,
 			}
 		})
 
-		return { areaRef, ...toRefs(coordinates), sliderComputed, mouseDown, mouseClick }
+		return { areaRef, ...toRefs(coordinates), sliderComputedStyle, mouseDown, mouseClick }
 	},
 })
 </script>

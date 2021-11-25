@@ -140,10 +140,6 @@ export default defineComponent({
 			return tinycolor({ h: decomposedColor.h, s: decomposedColor.s, v: decomposedColor.v, a: 1 }).toHslString()
 		})
 
-		const pickerColor = computed((): string => {
-			return tinycolor({ h: decomposedColor.h, s: decomposedColor.s, v: decomposedColor.v, a: 1 }).toRgbString()
-		})
-
 		const alphaColor = computed((): string => {
 			return ''
 		})
@@ -172,8 +168,12 @@ export default defineComponent({
 			hueUpdateHandler,
 			alphaUpdateHandler,
 			pickerUpdateHandler,
-			pickerColor,
 		}
+	},
+	computed: {
+		pickerColor() {
+			return tinycolor({ h: this.h, s: this.s, v: this.v, a: 1 }).toRgbString()
+		},
 	},
 })
 </script>
