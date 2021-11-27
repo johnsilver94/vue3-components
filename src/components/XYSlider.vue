@@ -50,7 +50,7 @@ export default defineComponent({
 			x: 0,
 			y: 0,
 		})
-		let moveRangeDeviation: Range = { min: 0, max: 0, total: 0 }
+		const moveRangeDeviation = reactive<Range>({ min: 0, max: 0, total: 0 })
 		let areaSize: DOMRect = null
 		const areaRef = ref<HTMLDivElement>()
 		let translateSlider = ''
@@ -63,28 +63,8 @@ export default defineComponent({
 
 		onUpdated(() => {
 			console.log('onUpdated')
-			setCoordinates()
 
-			// const { size } = props.slider
-			// const { x, y } = props.modelValue
-			// const { width, height } = areaSize
-
-			// switch (props.axis) {
-			// 	case Axis.X:
-			// 		coordinates.x = x * (width + moveRangeDeviation.total) + moveRangeDeviation.min
-			// 		coordinates.y = (height - size) / 2
-			// 		translateSlider = `translateX(-${size / 2}px)`
-			// 		break
-			// 	case Axis.Y:
-			// 		coordinates.x = (width - size) / 2
-			// 		coordinates.y = y * height
-			// 		translateSlider = `translateY(${size / 2}px)`
-			// 		break
-			// 	default:
-			// 		coordinates.x = x * width
-			// 		coordinates.y = y * height
-			// 		translateSlider = `translate(-${size / 2}px,${size / 2}px)`
-			// }
+			// setCoordinates()
 		})
 
 		const setCoordinates = (): void => {
@@ -94,29 +74,41 @@ export default defineComponent({
 
 			switch (props.slider.mode) {
 				case SliderMode.INSIDE:
-					moveRangeDeviation = { min: size / 2, max: -size / 2, total: -size }
+					moveRangeDeviation.min = size / 2
+					moveRangeDeviation.max = -size / 2
+					moveRangeDeviation.total = -size
 					break
 				case SliderMode.OUTSIDE:
-					moveRangeDeviation = { min: 0 - size / 2, max: size / 2, total: size }
+					moveRangeDeviation.min = 0 - size / 2
+					moveRangeDeviation.max = size / 2
+					moveRangeDeviation.total = size
 					break
 				default:
-					moveRangeDeviation = { min: 0, max: 0, total: 0 }
+					moveRangeDeviation.min = 0
+					moveRangeDeviation.max = 0
+					moveRangeDeviation.total = 0
 			}
+
+			console.log(moveRangeDeviation)
 
 			switch (props.axis) {
 				case Axis.X:
-					coordinates.x = x * (width + moveRangeDeviation.total) + moveRangeDeviation.min
+					coordinates.x = clamp(
+						x * (width + moveRangeDeviation.total) + moveRangeDeviation.min,
+						0 + moveRangeDeviation.min,
+						width + moveRangeDeviation.max
+					)
 					coordinates.y = (height - size) / 2
 					translateSlider = `translateX(-${size / 2}px)`
 					break
 				case Axis.Y:
 					coordinates.x = (width - size) / 2
-					coordinates.y = y * height
+					coordinates.y = clamp(y * height, 0 + moveRangeDeviation.min, height + moveRangeDeviation.max)
 					translateSlider = `translateY(${size / 2}px)`
 					break
 				default:
-					coordinates.x = x * width
-					coordinates.y = y * height
+					coordinates.x = clamp(x * width, 0 + moveRangeDeviation.min, height + moveRangeDeviation.max)
+					coordinates.y = clamp(y * height, 0 + moveRangeDeviation.min, width + moveRangeDeviation.max)
 					translateSlider = `translate(-${size / 2}px,${size / 2}px)`
 			}
 		}
