@@ -5,10 +5,10 @@
 			<div class="inline-flex flex-col items-center">
 				<h2 class="text-purple-600 my-2">H - Inside</h2>
 				<XYSlider
+					v-model="sliderX"
 					class="w-80 h-4 m-2 rounded-sm"
 					:slider="{
 						size: 20,
-						position: { x: h },
 						mode: SliderMode.INSIDE,
 						class: 'slider-ex',
 					}"
@@ -19,10 +19,10 @@
 			<div class="inline-flex flex-col items-center">
 				<h2 class="text-purple-600 my-2">H - Semi</h2>
 				<XYSlider
+					v-model="sliderX"
 					class="w-80 h-4 m-2 rounded-sm"
 					:slider="{
 						size: 20,
-						position: { x: h },
 						mode: SliderMode.SEMI,
 						class: 'slider-ex',
 					}"
@@ -33,10 +33,10 @@
 			<div class="inline-flex flex-col items-center">
 				<h2 class="text-purple-600 my-2">H - Outside</h2>
 				<XYSlider
+					v-model="sliderX"
 					class="w-80 h-4 m-2 rounded-sm"
 					:slider="{
 						size: 20,
-						position: { x: h },
 						mode: SliderMode.OUTSIDE,
 						class: 'slider-ex',
 					}"
@@ -47,10 +47,10 @@
 			<div class="inline-flex flex-col items-center">
 				<h2 class="text-purple-600 my-2">V - Inside</h2>
 				<XYSlider
+					v-model="sliderY"
 					class="h-60 w-4 m-2 rounded-sm"
 					:slider="{
 						size: 20,
-						position: { y: 0.5 },
 						mode: SliderMode.INSIDE,
 						class: 'slider-ex',
 					}"
@@ -61,10 +61,10 @@
 			<div class="inline-flex flex-col items-center">
 				<h2 class="text-purple-600 my-2">V - Semi</h2>
 				<XYSlider
+					v-model="sliderY"
 					class="h-60 w-4 m-2 rounded-sm"
 					:slider="{
 						size: 20,
-						position: { y: 0.5 },
 						mode: SliderMode.SEMI,
 						class: 'slider-ex',
 					}"
@@ -75,10 +75,10 @@
 			<div class="inline-flex flex-col items-center">
 				<h2 class="text-purple-600 my-2">V - Outside</h2>
 				<XYSlider
+					v-model="sliderY"
 					class="h-60 w-4 m-2 rounded-sm"
 					:slider="{
 						size: 20,
-						position: { y: 0.5 },
 						mode: SliderMode.OUTSIDE,
 						class: 'slider-ex',
 					}"
@@ -89,10 +89,10 @@
 			<div class="inline-flex flex-col items-center">
 				<h2 class="text-purple-600 my-2">V - Inside</h2>
 				<XYSlider
+					v-model="sliderXY"
 					class="w-80 h-80 rounded-sm"
 					:slider="{
 						size: 16,
-						position: { x: 0.5, y: 0.5 },
 						mode: SliderMode.INSIDE,
 						class: 'picker',
 					}"
@@ -103,10 +103,10 @@
 			<div class="inline-flex flex-col items-center">
 				<h2 class="text-purple-600 my-2">V - Semi</h2>
 				<XYSlider
+					v-model="sliderXY"
 					class="w-80 h-80 rounded-sm"
 					:slider="{
 						size: 16,
-						position: { x: 0.5, y: 0.5 },
 						mode: SliderMode.SEMI,
 						class: 'picker',
 					}"
@@ -117,10 +117,10 @@
 			<div class="inline-flex flex-col items-center">
 				<h2 class="text-purple-600 my-2">V - Outside</h2>
 				<XYSlider
+					v-model="sliderXY"
 					class="w-80 h-80 rounded-sm"
 					:slider="{
 						size: 16,
-						position: { x: 0.5, y: 0.5 },
 						mode: SliderMode.OUTSIDE,
 						class: 'picker',
 					}"
@@ -144,7 +144,7 @@ export default defineComponent({
 		XYSlider,
 	},
 	setup() {
-		const values = reactive({ h: 0.5 })
+		const values = reactive({ sliderX: { x: 0.5 }, sliderY: { y: 0.5 }, sliderXY: { x: 0.5, y: 0.5 } })
 
 		const changeHandler = (values: { x: number; y: number }): void => {
 			console.log(values)

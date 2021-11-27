@@ -2,31 +2,27 @@
 	<div class="inline-grid border-1/2 border-gray-500 bg-gray-200">
 		<div class="inline-grid grid-flow-col gap-3 m-2">
 			<XYSlider
+				v-model="pickerSlider"
 				class="picking-area"
 				:slider="{
 					size: 18,
-					position: { x: 0.5, y: 0.5 },
 					mode: SliderMode.INSIDE,
 					class: 'slider-o',
-					style: {
-						// borderRadius: '50%',
-						// borderColor: 'white',
-						// backgroundColor: 'blue',
-						// borderWidth: '2px',
-					},
+					// style: {
+					// 	backgroundColor: previewColor,
+					// },
 					areaClass: 'picker-gradient',
 					areaStyle: {
 						backgroundColor: pickerColor,
 					},
 				}"
 				:axis="Axis.XY"
-				@update:values="pickerUpdateHandler($event)"
 			/>
 			<XYSlider
+				v-model="hueSliderV"
 				class="h-auto w-4"
 				:slider="{
 					size: 16,
-					position: { y: 0.5 },
 					mode: SliderMode.INSIDE,
 					style: { borderRadius: '50%', borderColor: 'white', borderWidth: '2px' },
 					areaClass: 'hue-areaV',
@@ -35,9 +31,9 @@
 			/>
 			<div class="h-full w-4 opacity-area bg-white">
 				<XYSlider
+					v-model="alphaSliderV"
 					:slider="{
 						size: 16,
-						position: { y: 0.5 },
 						mode: SliderMode.INSIDE,
 						style: {
 							borderColor: 'black',
@@ -55,26 +51,25 @@
 		<div class="flex m-2">
 			<div class="mr-2">
 				<div class="w-16 h-16 opacity-area rounded-md overflow-hidden">
-					<div class="w-full h-full" :style="{ backgroundColor: 'black' }" />
+					<div class="w-full h-full" :style="{ backgroundColor: previewColor }" />
 				</div>
 			</div>
 			<div class="w-full">
 				<XYSlider
+					v-model="hueSliderH"
 					class="w-auto h-5 my-2"
 					:slider="{
 						size: 20,
-						position: { x: h },
 						mode: SliderMode.INSIDE,
 						areaClass: 'hue-area',
 					}"
 					:axis="Axis.X"
-					@update:values="hueUpdateHandler($event)"
 				/>
 				<div class="w-auto h-5 my-2 opacity-area bg-white">
 					<XYSlider
+						v-model="alphaSliderH"
 						:slider="{
 							size: 20,
-							position: { x: 0.5 },
 							mode: SliderMode.INSIDE,
 							style: {
 								borderColor: 'white',
@@ -86,7 +81,6 @@
 							},
 						}"
 						:axis="Axis.X"
-						@update:values="alphaUpdateHandler($event)"
 					/>
 				</div>
 			</div>
@@ -136,44 +130,82 @@ export default defineComponent({
 			console.log(decomposedColor)
 		})
 
-		const hueColor = computed((): string => {
-			return tinycolor({ h: decomposedColor.h, s: decomposedColor.s, v: decomposedColor.v, a: 1 }).toHslString()
+		const alphaSliderH = computed({
+			get: (): XYCoordinates => {
+				return { x: decomposedColor.a }
+			},
+			set: (coord): void => {
+				decomposedColor.a = coord.x
+			},
 		})
 
-		const alphaColor = computed((): string => {
-			return ''
+		const alphaSliderV = computed({
+			get: (): XYCoordinates => {
+				return { y: decomposedColor.a }
+			},
+			set: (coord): void => {
+				decomposedColor.a = coord.y
+			},
+		})
+
+		const hueSliderH = computed({
+			get: (): XYCoordinates => {
+				return { x: decomposedColor.h }
+			},
+			set: (coord): void => {
+				decomposedColor.h = coord.x
+			},
+		})
+
+		const hueSliderV = computed({
+			get: (): XYCoordinates => {
+				return { y: decomposedColor.h }
+			},
+			set: (coord): void => {
+				decomposedColor.h = coord.y
+			},
+		})
+
+		const pickerSlider = computed({
+			get: (): XYCoordinates => {
+				return { x: decomposedColor.s, y: decomposedColor.v }
+			},
+			set: (coord): void => {
+				decomposedColor.s = coord.x
+				decomposedColor.v = coord.y
+			},
+		})
+
+		const pickerColor = computed((): string => {
+			return tinycolor({
+				h: decomposedColor.h * 360,
+				s: 1,
+				v: 1,
+				a: decomposedColor.a,
+			}).toRgbString()
 		})
 
 		const previewColor = computed((): string => {
-			return ''
+			return tinycolor({
+				h: decomposedColor.h * 360,
+				s: decomposedColor.s,
+				v: decomposedColor.v,
+				a: decomposedColor.a,
+			}).toRgbString()
 		})
-
-		const hueUpdateHandler = (value: XYCoordinates): void => {
-			decomposedColor.h = value.x
-		}
-
-		const alphaUpdateHandler = (value: XYCoordinates): void => {
-			decomposedColor.a = value.x
-		}
-
-		const pickerUpdateHandler = (value: XYCoordinates): void => {
-			decomposedColor.s = value.x
-			decomposedColor.v = value.y
-		}
 
 		return {
 			Axis,
 			SliderMode,
 			...toRefs(decomposedColor),
-			hueUpdateHandler,
-			alphaUpdateHandler,
-			pickerUpdateHandler,
+			alphaSliderH,
+			alphaSliderV,
+			hueSliderH,
+			hueSliderV,
+			pickerSlider,
+			previewColor,
+			pickerColor,
 		}
-	},
-	computed: {
-		pickerColor() {
-			return tinycolor({ h: this.h, s: this.s, v: this.v, a: 1 }).toRgbString()
-		},
 	},
 })
 </script>

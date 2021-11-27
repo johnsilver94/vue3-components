@@ -4,7 +4,7 @@
 	</div>
 </template>
 <script lang="ts">
-import { defineComponent, onMounted, PropType, ref, Ref, reactive, SetupContext } from '@vue/runtime-core'
+import { defineComponent, onMounted, PropType, ref, Ref, reactive, SetupContext, onUpdated } from '@vue/runtime-core'
 import { clamp } from 'lodash'
 import { computed, ComputedRef, CSSProperties, toRefs } from 'vue'
 import type { XYCoordinates, Slider } from '@/types/slider'
@@ -22,13 +22,19 @@ type Res = {
 export default defineComponent({
 	name: 'XYSlider',
 	props: {
+		modelValue: {
+			type: Object as PropType<XYCoordinates>,
+			required: true,
+			default: () => {
+				return { x: 0, y: 0 }
+			},
+		},
 		slider: {
 			type: Object as PropType<Slider>,
 			required: true,
 			// eslint-disable-next-line vue/require-valid-default-prop
 			default: {
 				size: 18,
-				position: { x: 0, y: 0 },
 				mode: SliderMode.SEMI,
 			},
 		},
@@ -38,7 +44,7 @@ export default defineComponent({
 			default: Axis.XY,
 		},
 	},
-	emits: ['update:coordinates'],
+	emits: ['update:coordinates', 'update:modelValue'],
 	setup(props, { emit }: SetupContext): Res {
 		const coordinates = reactive<XYCoordinates>({
 			x: 0,
@@ -55,11 +61,35 @@ export default defineComponent({
 			setCoordinates()
 		})
 
+		onUpdated(() => {
+			console.log('onUpdated')
+			setCoordinates()
+
+			// const { size } = props.slider
+			// const { x, y } = props.modelValue
+			// const { width, height } = areaSize
+
+			// switch (props.axis) {
+			// 	case Axis.X:
+			// 		coordinates.x = x * (width + moveRangeDeviation.total) + moveRangeDeviation.min
+			// 		coordinates.y = (height - size) / 2
+			// 		translateSlider = `translateX(-${size / 2}px)`
+			// 		break
+			// 	case Axis.Y:
+			// 		coordinates.x = (width - size) / 2
+			// 		coordinates.y = y * height
+			// 		translateSlider = `translateY(${size / 2}px)`
+			// 		break
+			// 	default:
+			// 		coordinates.x = x * width
+			// 		coordinates.y = y * height
+			// 		translateSlider = `translate(-${size / 2}px,${size / 2}px)`
+			// }
+		})
+
 		const setCoordinates = (): void => {
-			const {
-				size,
-				position: { x, y },
-			} = props.slider
+			const { size } = props.slider
+			const { x, y } = props.modelValue
 			const { width, height } = areaSize
 
 			switch (props.slider.mode) {
@@ -137,6 +167,7 @@ export default defineComponent({
 				x: (coordinates.x - moveRangeDeviation.min) / (width + moveRangeDeviation.total),
 			}
 			emit('update:coordinates', coordinatesRes)
+			emit('update:modelValue', coordinatesRes)
 		}
 
 		const mouseMoveY = (e: MouseEvent): void => {
@@ -153,6 +184,7 @@ export default defineComponent({
 			}
 
 			emit('update:coordinates', coordinatesRes)
+			emit('update:modelValue', coordinatesRes)
 		}
 
 		const mouseMoveXY = (e: MouseEvent): void => {
@@ -172,6 +204,7 @@ export default defineComponent({
 			}
 
 			emit('update:coordinates', coordinatesRes)
+			emit('update:modelValue', coordinatesRes)
 		}
 
 		const mouseClickX = (e: MouseEvent): void => {
@@ -187,6 +220,7 @@ export default defineComponent({
 			}
 
 			emit('update:coordinates', coordinatesRes)
+			emit('update:modelValue', coordinatesRes)
 		}
 
 		const mouseClickY = (e: MouseEvent): void => {
@@ -201,6 +235,7 @@ export default defineComponent({
 			coordinatesRes = { y: (coordinates.y - moveRangeDeviation.min) / (height + moveRangeDeviation.total) }
 
 			emit('update:coordinates', coordinatesRes)
+			emit('update:modelValue', coordinatesRes)
 		}
 
 		const mouseClickXY = (e: MouseEvent): void => {
@@ -221,6 +256,7 @@ export default defineComponent({
 			}
 
 			emit('update:coordinates', coordinatesRes)
+			emit('update:modelValue', coordinatesRes)
 		}
 
 		const mouseClick = (e: MouseEvent) => {
@@ -264,7 +300,7 @@ export default defineComponent({
 	border-radius: 50%;
 	border: 2px solid gray;
 
-	&:active {
+	&:hover {
 		transform: scale(1.2);
 	}
 }

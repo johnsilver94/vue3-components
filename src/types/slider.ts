@@ -28,7 +28,6 @@ enum SliderMode {
 
 type Slider = {
 	size: number
-	position: XYCoordinates
 	mode?: SliderMode
 	style?: CSSProperties
 	class?: string
