@@ -6,11 +6,11 @@
 				class="picking-area"
 				:slider="{
 					size: 18,
-					mode: SliderMode.INSIDE,
+					mode: SliderMode.SEMI,
 					class: 'slider-o',
-					// style: {
-					// 	backgroundColor: previewColor,
-					// },
+					style: {
+						backgroundColor: previewColor,
+					},
 					areaClass: 'picker-gradient',
 					areaStyle: {
 						backgroundColor: pickerColor,

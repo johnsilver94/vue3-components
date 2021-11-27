@@ -4,32 +4,23 @@
 	</div>
 </template>
 <script lang="ts" setup>
-import { defineProps, withDefaults, defineEmits, onMounted, ref, Ref, reactive, onUpdated } from '@vue/runtime-core'
+import { defineProps, withDefaults, defineEmits, onMounted, ref, reactive, onUpdated } from '@vue/runtime-core'
 import { clamp } from 'lodash'
-import { computed, ComputedRef, CSSProperties, toRefs } from 'vue'
-import type { XYCoordinates, Slider } from '@/types/slider'
-import { Axis, SliderMode, Range } from '@/types/slider'
+import { computed, CSSProperties } from 'vue'
+import type { XYCoordinates, Slider, Range } from '@/types/slider'
+import { Axis, SliderMode } from '@/types/slider'
 
-// type Res = {
-// 	areaRef: Ref<HTMLDivElement>
-// 	x?: Ref<number>
-// 	y?: Ref<number>
-// 	sliderComputedStyle: ComputedRef<CSSProperties>
-// 	mouseDown: (e: MouseEvent) => void
-// 	mouseClick: (e: MouseEvent) => void
-// }
-
-interface Props {
+interface XYSliderProps {
 	modelValue: XYCoordinates
 	slider: Slider
 	axis: Axis
 }
 
-interface Emits {
+interface XYSliderEmits {
 	(e: 'update:modelValue', value: XYCoordinates): void
 }
 
-const props = withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<XYSliderProps>(), {
 	modelValue: (): XYCoordinates => {
 		return { x: 0, y: 0 }
 	},
@@ -42,16 +33,17 @@ const props = withDefaults(defineProps<Props>(), {
 	axis: Axis.XY,
 })
 
-const emit = defineEmits<Emits>()
+const emit = defineEmits<XYSliderEmits>()
 
 const coordinates = reactive<XYCoordinates>({
 	x: 0,
 	y: 0,
 })
+
 const moveRangeDeviation = reactive<Range>({ min: 0, max: 0, total: 0 })
-let areaSize: DOMRect = null
 const areaRef = ref<HTMLDivElement>()
-let translateSlider = ''
+let areaSize: DOMRect
+let translateSlider: string
 
 onMounted(() => {
 	console.log('onMounted')
@@ -62,20 +54,8 @@ onMounted(() => {
 
 onUpdated(() => {
 	console.log('onUpdated')
-	const { x, y } = props.modelValue
-	const { width, height } = areaSize
 
-	switch (props.axis) {
-		case Axis.X:
-			coordinates.x = x * (width + moveRangeDeviation.total) + moveRangeDeviation.min
-			break
-		case Axis.Y:
-			coordinates.y = y * (height + moveRangeDeviation.total) + moveRangeDeviation.min
-			break
-		default:
-			coordinates.x = x * (width + moveRangeDeviation.total) + moveRangeDeviation.min
-			coordinates.y = y * (height + moveRangeDeviation.total) + moveRangeDeviation.min
-	}
+	setCoordinates()
 })
 
 const setCoordinates = (): void => {
@@ -288,13 +268,15 @@ const sliderComputedStyle = computed((): CSSProperties => {
 }
 
 .slider {
+	cursor: pointer;
 	position: absolute;
 	box-sizing: border-box;
 	border-radius: 50%;
 	border: 2px solid gray;
+	// transform: translate(-50%, -50%);
 
-	&:hover {
-		transform: scale(1.2);
-	}
+	// &:hover {
+	// 	transform: scale(1.2);
+	// }
 }
 </style>
