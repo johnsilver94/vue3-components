@@ -41,7 +41,7 @@
 						},
 						areaStyle: {
 							borderRadius: '15px',
-							background: 'linear-gradient(0deg, rgba(41, 180, 245, 0), rgb(41, 180, 245))',
+							background: `linear-gradient(0deg, ${alphaColorFrom}, ${alphaColorTo})`,
 						},
 					}"
 					:axis="Axis.Y"
@@ -77,7 +77,7 @@
 							},
 							areaStyle: {
 								borderRadius: '15px',
-								background: 'linear-gradient(90deg, rgba(41, 180, 245, 0), rgb(41, 180, 245))',
+								background: `linear-gradient(90deg, ${alphaColorFrom}, ${alphaColorTo})`,
 							},
 						}"
 						:axis="Axis.X"
@@ -107,8 +107,9 @@ export default defineComponent({
 			// default: 'rgb(172 213 73 / 55%);',
 			// default: 'rgba(124, 51, 52, 0.62)',
 			// default: 'rgba(130, 65, 65, 0.82)',
-			// default: 'rgba(130, 65, 80, 1)',
-			default: 'rgba(65, 118, 130, 1)',
+			default: 'rgba(255, 0, 132, 0.8)',
+			// default: 'rgba(65, 118, 130, 1)',
+			// default: '#3A8C63',
 		},
 	},
 	emits: [],
@@ -194,6 +195,24 @@ export default defineComponent({
 			}).toRgbString()
 		})
 
+		const alphaColorFrom = computed((): string => {
+			return tinycolor({
+				h: decomposedColor.h * 360,
+				s: decomposedColor.s,
+				v: decomposedColor.v,
+				a: 0,
+			}).toRgbString()
+		})
+
+		const alphaColorTo = computed((): string => {
+			return tinycolor({
+				h: decomposedColor.h * 360,
+				s: decomposedColor.s,
+				v: decomposedColor.v,
+				a: 1,
+			}).toRgbString()
+		})
+
 		return {
 			Axis,
 			SliderMode,
@@ -205,6 +224,8 @@ export default defineComponent({
 			pickerSlider,
 			previewColor,
 			pickerColor,
+			alphaColorFrom,
+			alphaColorTo,
 		}
 	},
 })

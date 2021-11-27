@@ -144,7 +144,7 @@ export default defineComponent({
 		XYSlider,
 	},
 	setup() {
-		const values = reactive({ sliderX: { x: 0.5 }, sliderY: { y: 0.5 }, sliderXY: { x: 0.5, y: 0.5 } })
+		const values = reactive({ sliderX: { x: 0 }, sliderY: { y: 0 }, sliderXY: { x: 0, y: 0 } })
 
 		const changeHandler = (values: { x: number; y: number }): void => {
 			console.log(values)
