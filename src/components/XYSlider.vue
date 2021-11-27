@@ -6,7 +6,7 @@
 <script lang="ts">
 import { defineComponent, onMounted, PropType, ref, Ref, reactive, SetupContext, onUpdated } from '@vue/runtime-core'
 import { clamp } from 'lodash'
-import { computed, ComputedRef, CSSProperties, toRefs } from 'vue'
+import { computed, ComputedRef, CSSProperties, toRefs, WritableComputedRef } from 'vue'
 import type { XYCoordinates, Slider } from '@/types/slider'
 import { Axis, SliderMode, Range } from '@/types/slider'
 
@@ -44,7 +44,7 @@ export default defineComponent({
 			default: Axis.XY,
 		},
 	},
-	emits: ['update:coordinates', 'update:modelValue'],
+	emits: ['update:modelValue'],
 	setup(props, { emit }: SetupContext): Res {
 		const coordinates = reactive<XYCoordinates>({
 			x: 0,
@@ -89,7 +89,7 @@ export default defineComponent({
 					moveRangeDeviation.total = 0
 			}
 
-			console.log(moveRangeDeviation)
+			// console.log(moveRangeDeviation)
 
 			switch (props.axis) {
 				case Axis.X:
@@ -158,7 +158,6 @@ export default defineComponent({
 			const coordinatesRes: XYCoordinates = {
 				x: (coordinates.x - moveRangeDeviation.min) / (width + moveRangeDeviation.total),
 			}
-			emit('update:coordinates', coordinatesRes)
 			emit('update:modelValue', coordinatesRes)
 		}
 
@@ -175,7 +174,6 @@ export default defineComponent({
 				y: (coordinates.y - moveRangeDeviation.min) / (height + moveRangeDeviation.total),
 			}
 
-			emit('update:coordinates', coordinatesRes)
 			emit('update:modelValue', coordinatesRes)
 		}
 
@@ -195,7 +193,6 @@ export default defineComponent({
 				y: (coordinates.y - moveRangeDeviation.min) / (height + moveRangeDeviation.total),
 			}
 
-			emit('update:coordinates', coordinatesRes)
 			emit('update:modelValue', coordinatesRes)
 		}
 
@@ -211,7 +208,6 @@ export default defineComponent({
 				x: (coordinates.x - moveRangeDeviation.min) / (width + moveRangeDeviation.total),
 			}
 
-			emit('update:coordinates', coordinatesRes)
 			emit('update:modelValue', coordinatesRes)
 		}
 
@@ -226,7 +222,6 @@ export default defineComponent({
 			coordinates.y = clamp(dy, 0 + moveRangeDeviation.min, height + moveRangeDeviation.max)
 			coordinatesRes = { y: (coordinates.y - moveRangeDeviation.min) / (height + moveRangeDeviation.total) }
 
-			emit('update:coordinates', coordinatesRes)
 			emit('update:modelValue', coordinatesRes)
 		}
 
@@ -247,7 +242,6 @@ export default defineComponent({
 				y: (coordinates.y - moveRangeDeviation.min) / (height + moveRangeDeviation.total),
 			}
 
-			emit('update:coordinates', coordinatesRes)
 			emit('update:modelValue', coordinatesRes)
 		}
 
