@@ -1,19 +1,5 @@
 import { CSSProperties } from 'vue'
 
-type XYCoordinates =
-	| {
-			x: number
-			y: number
-	  }
-	| {
-			x?: number
-			y: number
-	  }
-	| {
-			x: number
-			y?: number
-	  }
-
 enum Axis {
 	X = 'x',
 	Y = 'y',
@@ -35,7 +21,5 @@ type Slider = {
 	areaClass?: string
 }
 
-type Range = { min: number; max: number; total: number }
-
-export type { XYCoordinates, Slider, Range }
+export type { Slider }
 export { Axis, SliderMode }

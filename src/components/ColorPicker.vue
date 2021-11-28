@@ -2,7 +2,8 @@
 	<div class="inline-grid border-1/2 border-gray-500 bg-gray-200">
 		<div class="inline-grid grid-flow-col gap-3 m-2">
 			<XYSlider
-				v-model="pickerSlider"
+				v-model:x="s"
+				v-model:y="v"
 				class="picking-area"
 				:slider="{
 					size: 18,
@@ -19,7 +20,7 @@
 				:axis="Axis.XY"
 			/>
 			<XYSlider
-				v-model="hueSliderV"
+				v-model:y="h"
 				class="h-auto w-4"
 				:slider="{
 					size: 16,
@@ -31,7 +32,7 @@
 			/>
 			<div class="h-full w-4 opacity-area bg-white">
 				<XYSlider
-					v-model="alphaSliderV"
+					v-model:y="a"
 					:slider="{
 						size: 16,
 						mode: SliderMode.INSIDE,
@@ -56,7 +57,7 @@
 			</div>
 			<div class="w-full">
 				<XYSlider
-					v-model="hueSliderH"
+					v-model:x="h"
 					class="w-auto h-5 my-2"
 					:slider="{
 						size: 20,
@@ -67,7 +68,7 @@
 				/>
 				<div class="w-auto h-5 my-2 opacity-area bg-white">
 					<XYSlider
-						v-model="alphaSliderH"
+						v-model:x="a"
 						:slider="{
 							size: 20,
 							mode: SliderMode.INSIDE,
@@ -93,7 +94,6 @@ import tinycolor, { ColorFormats } from 'tinycolor2'
 import { defineComponent, onMounted, reactive } from '@vue/runtime-core'
 import XYSlider from '@components/XYSlider.vue'
 import { Axis, SliderMode } from '@/types/slider'
-import type { XYCoordinates } from '@/types/slider'
 import { computed, toRefs } from 'vue'
 
 export default defineComponent({
@@ -107,7 +107,7 @@ export default defineComponent({
 			// default: 'rgb(172 213 73 / 55%);',
 			// default: 'rgba(124, 51, 52, 0.62)',
 			// default: 'rgba(130, 65, 65, 0.82)',
-			default: 'rgba(255, 0, 132, 0.8)',
+			default: 'rgba(255, 0, 0, 1)',
 			// default: 'rgba(65, 118, 130, 1)',
 			// default: '#3A8C63',
 		},
@@ -122,7 +122,6 @@ export default defineComponent({
 		})
 
 		onMounted(() => {
-			console.log(props.color)
 			decomposedColor.h = tinycolor(props.color).toHsv().h / 360
 			decomposedColor.s = tinycolor(props.color).toHsv().s
 			decomposedColor.v = tinycolor(props.color).toHsv().v
@@ -131,58 +130,12 @@ export default defineComponent({
 			console.log(decomposedColor)
 		})
 
-		const alphaSliderH = computed({
-			get: (): XYCoordinates => {
-				return { x: decomposedColor.a }
-			},
-			set: (coord): void => {
-				decomposedColor.a = coord.x
-			},
-		})
-
-		const alphaSliderV = computed({
-			get: (): XYCoordinates => {
-				return { y: decomposedColor.a }
-			},
-			set: (coord): void => {
-				decomposedColor.a = coord.y
-			},
-		})
-
-		const hueSliderH = computed({
-			get: (): XYCoordinates => {
-				return { x: decomposedColor.h }
-			},
-			set: (coord): void => {
-				decomposedColor.h = coord.x
-			},
-		})
-
-		const hueSliderV = computed({
-			get: (): XYCoordinates => {
-				return { y: decomposedColor.h }
-			},
-			set: (coord): void => {
-				decomposedColor.h = coord.y
-			},
-		})
-
-		const pickerSlider = computed({
-			get: (): XYCoordinates => {
-				return { x: decomposedColor.s, y: decomposedColor.v }
-			},
-			set: (coord): void => {
-				decomposedColor.s = coord.x
-				decomposedColor.v = coord.y
-			},
-		})
-
 		const pickerColor = computed((): string => {
 			return tinycolor({
 				h: decomposedColor.h * 360,
 				s: 1,
 				v: 1,
-				a: decomposedColor.a,
+				a: 1,
 			}).toRgbString()
 		})
 
@@ -217,11 +170,6 @@ export default defineComponent({
 			Axis,
 			SliderMode,
 			...toRefs(decomposedColor),
-			alphaSliderH,
-			alphaSliderV,
-			hueSliderH,
-			hueSliderV,
-			pickerSlider,
 			previewColor,
 			pickerColor,
 			alphaColorFrom,

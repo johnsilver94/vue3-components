@@ -5,7 +5,7 @@
 			<div class="inline-flex flex-col items-center">
 				<h2 class="text-purple-600 my-2">H - Inside</h2>
 				<XYSlider
-					v-model="sliderX"
+					v-model:x="sliderX.x"
 					class="w-80 h-4 m-2 rounded-sm"
 					:slider="{
 						size: 20,
@@ -19,7 +19,7 @@
 			<div class="inline-flex flex-col items-center">
 				<h2 class="text-purple-600 my-2">H - Semi</h2>
 				<XYSlider
-					v-model="sliderX"
+					v-model:x="sliderX.x"
 					class="w-80 h-4 m-2 rounded-sm"
 					:slider="{
 						size: 20,
@@ -33,7 +33,7 @@
 			<div class="inline-flex flex-col items-center">
 				<h2 class="text-purple-600 my-2">H - Outside</h2>
 				<XYSlider
-					v-model="sliderX"
+					v-model:x="sliderX.x"
 					class="w-80 h-4 m-2 rounded-sm"
 					:slider="{
 						size: 20,
@@ -47,7 +47,7 @@
 			<div class="inline-flex flex-col items-center">
 				<h2 class="text-purple-600 my-2">V - Inside</h2>
 				<XYSlider
-					v-model="sliderY"
+					v-model:y="sliderY.y"
 					class="h-60 w-4 m-2 rounded-sm"
 					:slider="{
 						size: 20,
@@ -61,7 +61,7 @@
 			<div class="inline-flex flex-col items-center">
 				<h2 class="text-purple-600 my-2">V - Semi</h2>
 				<XYSlider
-					v-model="sliderY"
+					v-model:y="sliderY.y"
 					class="h-60 w-4 m-2 rounded-sm"
 					:slider="{
 						size: 20,
@@ -75,7 +75,7 @@
 			<div class="inline-flex flex-col items-center">
 				<h2 class="text-purple-600 my-2">V - Outside</h2>
 				<XYSlider
-					v-model="sliderY"
+					v-model:y="sliderY.y"
 					class="h-60 w-4 m-2 rounded-sm"
 					:slider="{
 						size: 20,
@@ -89,7 +89,8 @@
 			<div class="inline-flex flex-col items-center">
 				<h2 class="text-purple-600 my-2">V - Inside</h2>
 				<XYSlider
-					v-model="sliderXY"
+					v-model:x="sliderXY.x"
+					v-model:y="sliderXY.y"
 					class="w-80 h-80 rounded-sm"
 					:slider="{
 						size: 16,
@@ -103,7 +104,8 @@
 			<div class="inline-flex flex-col items-center">
 				<h2 class="text-purple-600 my-2">V - Semi</h2>
 				<XYSlider
-					v-model="sliderXY"
+					v-model:x="sliderXY.x"
+					v-model:y="sliderXY.y"
 					class="w-80 h-80 rounded-sm"
 					:slider="{
 						size: 16,
@@ -117,7 +119,8 @@
 			<div class="inline-flex flex-col items-center">
 				<h2 class="text-purple-600 my-2">V - Outside</h2>
 				<XYSlider
-					v-model="sliderXY"
+					v-model:x="sliderXY.x"
+					v-model:y="sliderXY.y"
 					class="w-80 h-80 rounded-sm"
 					:slider="{
 						size: 16,
