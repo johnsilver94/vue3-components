@@ -2,8 +2,8 @@
 	<div class="inline-grid border-1/2 border-gray-500 bg-gray-200">
 		<div class="inline-grid grid-flow-col gap-3 m-2">
 			<XYSlider
-				v-model:x="s"
-				v-model:y="v"
+				v-model:x="decomposedColor.s"
+				v-model:y="decomposedColor.v"
 				class="picking-area"
 				:slider="{
 					size: 18,
@@ -20,7 +20,7 @@
 				:axis="Axis.XY"
 			/>
 			<XYSlider
-				v-model:y="h"
+				v-model:y="decomposedColor.h"
 				class="h-auto w-4"
 				:slider="{
 					size: 16,
@@ -32,7 +32,7 @@
 			/>
 			<div class="h-full w-4 opacity-area bg-white">
 				<XYSlider
-					v-model:y="a"
+					v-model:y="decomposedColor.a"
 					:slider="{
 						size: 16,
 						mode: SliderMode.INSIDE,
@@ -57,7 +57,7 @@
 			</div>
 			<div class="w-full">
 				<XYSlider
-					v-model:x="h"
+					v-model:x="decomposedColor.h"
 					class="w-auto h-5 my-2"
 					:slider="{
 						size: 20,
@@ -68,7 +68,7 @@
 				/>
 				<div class="w-auto h-5 my-2 opacity-area bg-white">
 					<XYSlider
-						v-model:x="a"
+						v-model:x="decomposedColor.a"
 						:slider="{
 							size: 20,
 							mode: SliderMode.INSIDE,
@@ -89,93 +89,98 @@
 		<div>Colors</div>
 	</div>
 </template>
-<script lang="ts">
+<script lang="ts" setup>
 import tinycolor, { ColorFormats } from 'tinycolor2'
-import { defineComponent, onMounted, reactive } from '@vue/runtime-core'
+import { defineProps, withDefaults, defineEmits, onMounted, reactive } from '@vue/runtime-core'
 import XYSlider from '@components/XYSlider.vue'
 import { Axis, SliderMode } from '@/types/slider'
-import { computed, toRefs } from 'vue'
+import { computed } from 'vue'
 
-export default defineComponent({
-	name: 'ColorPicker',
-	components: {
-		XYSlider,
+interface ColorPickerProps {
+	color: string
+}
+
+interface ColorPickerEmits {
+	(e: 'update:color', value: string): void
+}
+
+const props = withDefaults(defineProps<ColorPickerProps>(), {
+	color: 'rgba(142, 68, 68, 1)',
+})
+
+const emit = defineEmits<ColorPickerEmits>()
+
+const decomposedColor = reactive<ColorFormats.HSVA>({
+	h: 0,
+	s: 0,
+	v: 0,
+	a: 0,
+})
+
+const hue = computed({
+	get: (): number => {
+		return decomposedColor.h * 360
 	},
-	props: {
-		color: {
-			type: String,
-			// default: 'rgb(172 213 73 / 55%);',
-			// default: 'rgba(124, 51, 52, 0.62)',
-			// default: 'rgba(130, 65, 65, 0.82)',
-			default: 'rgba(255, 0, 0, 1)',
-			// default: 'rgba(65, 118, 130, 1)',
-			// default: '#3A8C63',
-		},
+	set: (value: number): void => {
+		console.log(value)
+		decomposedColor.h = value / 360
 	},
-	emits: [],
-	setup(props) {
-		const decomposedColor = reactive<ColorFormats.HSVA>({
-			h: 0,
-			s: 0,
-			v: 0,
-			a: 0,
-		})
+})
 
-		onMounted(() => {
-			decomposedColor.h = tinycolor(props.color).toHsv().h / 360
-			decomposedColor.s = tinycolor(props.color).toHsv().s
-			decomposedColor.v = tinycolor(props.color).toHsv().v
-			decomposedColor.a = tinycolor(props.color).toHsv().a
+onMounted(() => {
+	const baseColor: ColorFormats.HSVA = tinycolor(props.color).toHsv()
 
-			console.log(decomposedColor)
-		})
+	hue.value = baseColor.h
+	decomposedColor.s = baseColor.s
+	decomposedColor.v = baseColor.v
+	decomposedColor.a = baseColor.a
 
-		const pickerColor = computed((): string => {
-			return tinycolor({
-				h: decomposedColor.h * 360,
-				s: 1,
-				v: 1,
-				a: 1,
-			}).toRgbString()
-		})
+	console.log(decomposedColor)
+})
 
-		const previewColor = computed((): string => {
-			return tinycolor({
-				h: decomposedColor.h * 360,
-				s: decomposedColor.s,
-				v: decomposedColor.v,
-				a: decomposedColor.a,
-			}).toRgbString()
-		})
+const pickerColor = computed((): string => {
+	return tinycolor({
+		h: hue.value,
+		s: 1,
+		v: 1,
+		a: 1,
+	}).toRgbString()
+})
 
-		const alphaColorFrom = computed((): string => {
-			return tinycolor({
-				h: decomposedColor.h * 360,
-				s: decomposedColor.s,
-				v: decomposedColor.v,
-				a: 0,
-			}).toRgbString()
-		})
+const previewColor = computed((): string => {
+	// emit(
+	// 	'update:color',
+	// 	tinycolor({
+	// 		h: hue.value,
+	// 		s: decomposedColor.s,
+	// 		v: decomposedColor.v,
+	// 		a: decomposedColor.a,
+	// 	}).toRgbString()
+	// )
+	return tinycolor({
+		h: hue.value,
+		s: decomposedColor.s,
+		v: decomposedColor.v,
+		a: decomposedColor.a,
+	}).toRgbString()
+})
 
-		const alphaColorTo = computed((): string => {
-			return tinycolor({
-				h: decomposedColor.h * 360,
-				s: decomposedColor.s,
-				v: decomposedColor.v,
-				a: 1,
-			}).toRgbString()
-		})
+const alphaColorFrom = computed((): string => {
+	return tinycolor({
+		h: hue.value,
+		s: decomposedColor.s,
+		v: decomposedColor.v,
+		a: 0,
+	}).toRgbString()
+})
 
-		return {
-			Axis,
-			SliderMode,
-			...toRefs(decomposedColor),
-			previewColor,
-			pickerColor,
-			alphaColorFrom,
-			alphaColorTo,
-		}
-	},
+const alphaColorTo = computed((): string => {
+	return tinycolor({
+		h: hue.value,
+		s: decomposedColor.s,
+		v: decomposedColor.v,
+		a: 1,
+	}).toRgbString()
 })
 </script>
 <style lang="scss">
