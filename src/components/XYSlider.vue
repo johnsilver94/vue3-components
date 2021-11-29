@@ -1,14 +1,19 @@
 <template>
-	<div ref="areaRef" :class="['area bg-white', slider.areaClass]" :style="[slider.areaStyle]">
+	<div ref="areaRef" :class="['area bg-white', areaClass, attrs.areaclass]" :style="[areaStyle]">
 		<div ref="rangeRef" class="range" :style="rangeStyle" @click.self="mouseClick">
-			<div :class="['slider', slider.class]" :style="[slider.style, sliderComputedStyle]" @mousedown="mouseDown" />
+			<div
+				:class="['slider', sliderClass, attrs.sliderclass]"
+				:style="[sliderStyle, sliderComputedStyle]"
+				@mousedown="mouseDown"
+			/>
 		</div>
 	</div>
 </template>
 <script lang="ts" setup>
+/* eslint-disable vue/require-default-prop */
+
 import { defineProps, withDefaults, defineEmits, onMounted, ref, reactive } from '@vue/runtime-core'
-import { clamp } from 'lodash'
-import { computed, CSSProperties } from 'vue'
+import { computed, CSSProperties, useAttrs } from 'vue'
 import type { Slider } from '@/types/slider'
 import { Axis, SliderMode } from '@/types/slider'
 
@@ -16,6 +21,10 @@ interface XYSliderProps {
 	x?: number
 	y?: number
 	slider: Slider
+	sliderStyle?: CSSProperties
+	sliderClass?: string
+	areaStyle?: CSSProperties
+	areaClass?: string
 	axis: Axis
 }
 
@@ -43,6 +52,8 @@ const props = withDefaults(defineProps<XYSliderProps>(), {
 
 const emit = defineEmits<XYSliderEmits>()
 
+const attrs = useAttrs()
+
 const areaRef = ref<HTMLDivElement>()
 const rangeRef = ref<HTMLDivElement>()
 const rangeWidth = reactive<Range>({
@@ -51,35 +62,64 @@ const rangeWidth = reactive<Range>({
 })
 
 onMounted(() => {
-	const { size } = props.slider
+	setSliderRange()
+})
+
+const setSliderRange = (): void => {
 	const { width, height } = areaRef.value.getBoundingClientRect().toJSON()
 
-	let deviation: number
+	let deviationX: number
+	let deviationY: number
 
 	switch (props.slider.mode) {
 		case SliderMode.INSIDE:
-			deviation = 0 - size
+			deviationX = 0 - sizeWidth.value
+			deviationY = 0 - sizeHeight.value
 			break
 		case SliderMode.OUTSIDE:
-			deviation = size
+			deviationX = sizeWidth.value
+			deviationY = sizeHeight.value
 			break
 		default:
-			deviation = 0
+			deviationX = 0
+			deviationY = 0
 	}
 
 	switch (props.axis) {
 		case Axis.X:
-			rangeWidth.width = width + deviation
+			rangeWidth.width = width + deviationX
 			rangeWidth.height = height
 			break
 		case Axis.Y:
 			rangeWidth.width = width
-			rangeWidth.height = height + deviation
+			rangeWidth.height = height + deviationY
 			break
 		default:
-			rangeWidth.width = width + deviation
-			rangeWidth.height = height + deviation
+			rangeWidth.width = width + deviationX
+			rangeWidth.height = height + deviationY
 	}
+}
+
+const range = (value: number, min: number, max: number): number => {
+	if (value > max) return max
+	if (value < min) return min
+
+	return value
+}
+
+const sizeWidth = computed((): number => {
+	const { size } = props.slider
+
+	if (typeof size === 'number') {
+		return size
+	} else return size.width
+})
+const sizeHeight = computed((): number => {
+	const { size } = props.slider
+
+	if (typeof size === 'number') {
+		return size
+	} else return size.height
 })
 
 const xCoord = computed({
@@ -116,14 +156,14 @@ const mouseMove = (e: MouseEvent) => {
 
 	switch (props.axis) {
 		case Axis.X:
-			xCoord.value = clamp(clientX - x, 0, width) / width
+			xCoord.value = range(clientX - x, 0, width) / width
 			break
 		case Axis.Y:
-			yCoord.value = clamp(height - (clientY - y), 0, height) / height
+			yCoord.value = range(height - (clientY - y), 0, height) / height
 			break
 		default:
-			xCoord.value = clamp(clientX - x, 0, width) / width
-			yCoord.value = clamp(height - (clientY - y), 0, height) / height
+			xCoord.value = range(clientX - x, 0, width) / width
+			yCoord.value = range(height - (clientY - y), 0, height) / height
 	}
 }
 
@@ -133,14 +173,14 @@ const mouseClick = (e: MouseEvent) => {
 
 	switch (props.axis) {
 		case Axis.X:
-			xCoord.value = clamp(offsetX, 0, width) / width
+			xCoord.value = range(offsetX, 0, width) / width
 			break
 		case Axis.Y:
-			yCoord.value = clamp(height - offsetY, 0, height) / height
+			yCoord.value = range(height - offsetY, 0, height) / height
 			break
 		default:
-			xCoord.value = clamp(offsetX, 0, width) / width
-			yCoord.value = clamp(height - offsetY, 0, height) / height
+			xCoord.value = range(offsetX, 0, width) / width
+			yCoord.value = range(height - offsetY, 0, height) / height
 	}
 }
 
@@ -156,12 +196,20 @@ const rangeStyle = computed((): CSSProperties => {
 const sliderComputedStyle = computed((): CSSProperties => {
 	const { size } = props.slider
 
-	return {
-		left: xCoord.value + '%',
-		top: yCoord.value + '%',
-		width: size + 'px',
-		height: size + 'px',
-	}
+	if (typeof size === 'number')
+		return {
+			left: xCoord.value + '%',
+			top: yCoord.value + '%',
+			width: size + 'px',
+			height: size + 'px',
+		}
+	else
+		return {
+			left: xCoord.value + '%',
+			top: yCoord.value + '%',
+			width: size.width + 'px',
+			height: size.height + 'px',
+		}
 })
 </script>
 <style lang="scss">

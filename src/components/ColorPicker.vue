@@ -8,15 +8,11 @@
 				:slider="{
 					size: 18,
 					mode: SliderMode.SEMI,
-					class: 'slider-o',
-					style: {
-						backgroundColor: previewColor,
-					},
-					areaClass: 'picker-gradient',
-					areaStyle: {
-						backgroundColor: pickerColor,
-					},
 				}"
+				:slider-class="'slider-o'"
+				:slider-style="{ backgroundColor: previewColor }"
+				:area-class="'picker-gradient'"
+				:area-style="{ backgroundColor: pickerColor }"
 				:axis="Axis.XY"
 			/>
 			<XYSlider
@@ -25,9 +21,9 @@
 				:slider="{
 					size: 16,
 					mode: SliderMode.INSIDE,
-					style: { borderRadius: '50%', borderColor: 'white', borderWidth: '2px' },
-					areaClass: 'hue-areaV',
 				}"
+				:slider-style="{ borderRadius: '50%', borderColor: 'white', borderWidth: '2px' }"
+				:area-class="'hue-areaV'"
 				:axis="Axis.Y"
 			/>
 			<div class="h-full w-4 opacity-area bg-white">
@@ -36,14 +32,14 @@
 					:slider="{
 						size: 16,
 						mode: SliderMode.INSIDE,
-						style: {
-							borderColor: 'black',
-							borderWidth: '2px',
-						},
-						areaStyle: {
-							borderRadius: '15px',
-							background: `linear-gradient(0deg, ${alphaColorFrom}, ${alphaColorTo})`,
-						},
+					}"
+					:slider-style="{
+						borderColor: 'black',
+						borderWidth: '2px',
+					}"
+					:area-style="{
+						borderRadius: '15px',
+						background: `linear-gradient(0deg, ${alphaColorFrom}, ${alphaColorTo})`,
 					}"
 					:axis="Axis.Y"
 				/>
@@ -62,8 +58,8 @@
 					:slider="{
 						size: 20,
 						mode: SliderMode.INSIDE,
-						areaClass: 'hue-area',
 					}"
+					:area-class="'hue-area'"
 					:axis="Axis.X"
 				/>
 				<div class="w-auto h-5 my-2 opacity-area bg-white">
@@ -72,14 +68,14 @@
 						:slider="{
 							size: 20,
 							mode: SliderMode.INSIDE,
-							style: {
-								borderColor: 'white',
-								borderWidth: '3px',
-							},
-							areaStyle: {
-								borderRadius: '15px',
-								background: `linear-gradient(90deg, ${alphaColorFrom}, ${alphaColorTo})`,
-							},
+						}"
+						:slider-style="{
+							borderColor: 'white',
+							borderWidth: '3px',
+						}"
+						:area-style="{
+							borderRadius: '15px',
+							background: `linear-gradient(90deg, ${alphaColorFrom}, ${alphaColorTo})`,
 						}"
 						:axis="Axis.X"
 					/>

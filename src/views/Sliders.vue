@@ -8,10 +8,10 @@
 					v-model:x="sliderX.x"
 					class="w-80 h-4 m-2 rounded-sm"
 					:slider="{
-						size: 20,
+						size: { width: 10, height: 26 },
 						mode: SliderMode.INSIDE,
-						class: 'slider-ex',
 					}"
+					:slider-class="'slider-exa'"
 					:axis="Axis.X"
 					@update:coordinates="changeHandler($event)"
 				/>
@@ -22,10 +22,10 @@
 					v-model:x="sliderX.x"
 					class="w-80 h-4 m-2 rounded-sm"
 					:slider="{
-						size: 20,
+						size: { width: 40, height: 20 },
 						mode: SliderMode.SEMI,
-						class: 'slider-ex',
 					}"
+					:slider-class="'slider-ex'"
 					:axis="Axis.X"
 					@update:coordinates="changeHandler($event)"
 				/>
@@ -36,10 +36,10 @@
 					v-model:x="sliderX.x"
 					class="w-80 h-4 m-2 rounded-sm"
 					:slider="{
-						size: 20,
+						size: { width: 6, height: 10 },
 						mode: SliderMode.OUTSIDE,
-						class: 'slider-ex',
 					}"
+					:slider-class="'slider-ex'"
 					:axis="Axis.X"
 					@update:coordinates="changeHandler($event)"
 				/>
@@ -52,8 +52,8 @@
 					:slider="{
 						size: 20,
 						mode: SliderMode.INSIDE,
-						class: 'slider-ex',
 					}"
+					:slider-class="'slider-ex'"
 					:axis="Axis.Y"
 					@update:coordinates="changeHandler($event)"
 				/>
@@ -66,8 +66,8 @@
 					:slider="{
 						size: 20,
 						mode: SliderMode.SEMI,
-						class: 'slider-ex',
 					}"
+					:slider-class="'slider-ex'"
 					:axis="Axis.Y"
 					@update:coordinates="changeHandler($event)"
 				/>
@@ -80,8 +80,8 @@
 					:slider="{
 						size: 20,
 						mode: SliderMode.OUTSIDE,
-						class: 'slider-ex',
 					}"
+					:slider-class="'slider-ex'"
 					:axis="Axis.Y"
 					@update:coordinates="changeHandler($event)"
 				/>
@@ -95,8 +95,8 @@
 					:slider="{
 						size: 16,
 						mode: SliderMode.INSIDE,
-						class: 'picker',
 					}"
+					:slider-class="'picker'"
 					:axis="Axis.XY"
 					@update:coordinates="changeHandler($event)"
 				/>
@@ -110,8 +110,8 @@
 					:slider="{
 						size: 16,
 						mode: SliderMode.SEMI,
-						class: 'picker',
 					}"
+					:slider-class="'picker'"
 					:axis="Axis.XY"
 					@update:coordinates="changeHandler($event)"
 				/>
@@ -125,8 +125,8 @@
 					:slider="{
 						size: 16,
 						mode: SliderMode.OUTSIDE,
-						class: 'picker',
 					}"
+					:slider-class="'picker'"
 					:axis="Axis.XY"
 					@update:coordinates="changeHandler($event)"
 				/>
@@ -159,6 +159,11 @@ export default defineComponent({
 </script>
 <style lang="scss">
 .slider-ex {
+	border-color: 'gray';
+	border-width: '3px';
+	border-radius: 5px;
+}
+.slider-exa {
 	border-color: 'gray';
 	border-width: '3px';
 	border-radius: 5px;

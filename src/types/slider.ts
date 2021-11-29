@@ -1,5 +1,3 @@
-import { CSSProperties } from 'vue'
-
 enum Axis {
 	X = 'x',
 	Y = 'y',
@@ -12,13 +10,14 @@ enum SliderMode {
 	SEMI = 'semi',
 }
 
+type Size = {
+	width: number
+	height: number
+}
+
 type Slider = {
-	size: number
+	size: number | Size
 	mode?: SliderMode
-	style?: CSSProperties
-	class?: string
-	areaStyle?: CSSProperties
-	areaClass?: string
 }
 
 export type { Slider }
