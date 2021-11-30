@@ -1,80 +1,50 @@
 <template>
-	<div class="inline-grid border-1/2 border-gray-500 bg-gray-200">
-		<div class="inline-grid grid-flow-col gap-3 m-2">
-			<XYSlider
-				v-model:x="decomposedColor.s"
-				v-model:y="decomposedColor.v"
-				class="picking-area"
-				:slider="{
-					size: 18,
-					mode: SliderMode.SEMI,
-				}"
-				:slider-class="'slider-o'"
-				:slider-style="{ backgroundColor: previewColor }"
-				:area-class="'picker-gradient'"
-				:area-style="{ backgroundColor: pickerColor }"
-				:axis="Axis.XY"
-			/>
-			<XYSlider
-				v-model:y="decomposedColor.h"
-				class="h-auto w-4"
-				:slider="{
-					size: 16,
-					mode: SliderMode.INSIDE,
-				}"
-				:slider-style="{ borderRadius: '50%', borderColor: 'white', borderWidth: '2px' }"
-				:area-class="'hue-areaV'"
-				:axis="Axis.Y"
-			/>
-			<div class="h-full w-4 opacity-area bg-white">
-				<XYSlider
-					v-model:y="decomposedColor.a"
-					:slider="{
-						size: 16,
-						mode: SliderMode.INSIDE,
-					}"
-					:slider-style="{
-						borderColor: 'black',
-						borderWidth: '2px',
-					}"
-					:area-style="{
-						borderRadius: '15px',
-						background: `linear-gradient(0deg, ${alphaColorFrom}, ${alphaColorTo})`,
-					}"
-					:axis="Axis.Y"
-				/>
+	<div class="picker-container">
+		<XYSlider
+			v-model:x="decomposedColor.s"
+			v-model:y="decomposedColor.v"
+			class="area-saturation"
+			:slider="{
+				size: 18,
+				mode: SliderMode.SEMI,
+			}"
+			:slider-class="'slider-saturation shadow-md'"
+			:slider-style="{ backgroundColor: alphaColorTo }"
+			:style="{ backgroundColor: pickerColor }"
+			:axis="Axis.XY"
+		/>
+		<div class="controls-container">
+			<div class="preview opacity-area">
+				<div class="w-full h-full" :style="{ backgroundColor: previewColor }" />
 			</div>
-		</div>
-		<div class="flex m-2">
-			<div class="mr-2">
-				<div class="w-16 h-16 opacity-area rounded-md overflow-hidden">
-					<div class="w-full h-full" :style="{ backgroundColor: previewColor }" />
-				</div>
-			</div>
-			<div class="w-full">
+
+			<div class="controls">
 				<XYSlider
 					v-model:x="decomposedColor.h"
-					class="w-auto h-5 my-2"
+					class="control-slider area-hue"
 					:slider="{
-						size: 20,
+						size: { width: 12, height: 26 },
 						mode: SliderMode.INSIDE,
 					}"
-					:area-class="'hue-area'"
+					:slider-class="'slider-hue-alpha shadow-md'"
+					:slider-style="{
+						backgroundColor: pickerColor,
+					}"
 					:axis="Axis.X"
 				/>
-				<div class="w-auto h-5 my-2 opacity-area bg-white">
+				<div class="control-slider opacity-area">
 					<XYSlider
 						v-model:x="decomposedColor.a"
 						:slider="{
-							size: 20,
+							size: { width: 12, height: 26 },
 							mode: SliderMode.INSIDE,
 						}"
+						:slider-class="'slider-hue-alpha shadow-md'"
 						:slider-style="{
-							borderColor: 'white',
-							borderWidth: '3px',
+							backgroundColor: previewColor,
 						}"
-						:area-style="{
-							borderRadius: '15px',
+						class="area-alpha"
+						:style="{
 							background: `linear-gradient(90deg, ${alphaColorFrom}, ${alphaColorTo})`,
 						}"
 						:axis="Axis.X"
@@ -82,7 +52,6 @@
 				</div>
 			</div>
 		</div>
-		<div>Colors</div>
 	</div>
 </template>
 <script lang="ts" setup>
@@ -144,15 +113,6 @@ const pickerColor = computed((): string => {
 })
 
 const previewColor = computed((): string => {
-	// emit(
-	// 	'update:color',
-	// 	tinycolor({
-	// 		h: hue.value,
-	// 		s: decomposedColor.s,
-	// 		v: decomposedColor.v,
-	// 		a: decomposedColor.a,
-	// 	}).toRgbString()
-	// )
 	return tinycolor({
 		h: hue.value,
 		s: decomposedColor.s,
@@ -180,112 +140,122 @@ const alphaColorTo = computed((): string => {
 })
 </script>
 <style lang="scss">
-.slider-o {
-	border-color: white;
-	border-radius: 5px;
-}
-.picker-gradient {
-	border-radius: 5px;
-	background: linear-gradient(180deg, transparent, #000), linear-gradient(270deg, transparent, #fff);
+.picker-container {
+	display: flex;
+	flex-direction: column;
+
+	width: 350px;
+	margin: auto;
+	gap: 8px;
+
+	border: 0.5px solid rgb(184, 188, 199);
+	background-color: #ffffff;
+	padding: 8px;
+
+	@apply border-gray-200;
 }
 
-.opacity-supra {
-	background: linear-gradient(90deg, rgba(41, 180, 245, 0), rgb(41, 180, 245));
+.controls-container {
+	display: flex;
+	flex-direction: row;
+
+	gap: 8px;
+}
+
+.preview {
+	flex-shrink: 0;
+
+	width: 50px;
+	height: 50px;
+
+	border-radius: 50%;
+	overflow: hidden;
+
+	@apply shadow-md;
+}
+
+.controls {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-around;
+
+	width: 100%;
+}
+
+.control-slider {
+	@apply w-auto h-5;
+}
+
+.area {
+	&-saturation {
+		width: auto;
+		height: 300px;
+		border-radius: 5px;
+		background: linear-gradient(180deg, transparent, #000), linear-gradient(270deg, transparent, #fff);
+	}
+
+	&-hue {
+		border-radius: 5px;
+		background: linear-gradient(
+			90deg,
+			red,
+			#ff2b00,
+			#f50,
+			#ff8000,
+			#fa0,
+			#ffd500,
+			#ff0,
+			#d4ff00,
+			#af0,
+			#80ff00,
+			#5f0,
+			#2bff00,
+			#0f0,
+			#00ff2b,
+			#0f5,
+			#00ff80,
+			#0fa,
+			#00ffd5,
+			#0ff,
+			#00d4ff,
+			#0af,
+			#007fff,
+			#05f,
+			#002bff,
+			#00f,
+			#2a00ff,
+			#50f,
+			#7f00ff,
+			#a0f,
+			#d400ff,
+			#f0f,
+			#ff00d4,
+			#f0a,
+			#ff0080,
+			#f05,
+			#ff002b
+		);
+	}
+
+	&-alpha {
+		border-radius: 5px;
+	}
+}
+
+.slider {
+	&-saturation {
+		border-color: white;
+		border-radius: 5px;
+	}
+
+	&-hue-alpha {
+		border: 2.5px solid white;
+		border-radius: 5px;
+	}
 }
 
 .opacity-area {
-	border-radius: 15px;
+	border-radius: 5px;
 	background-image: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill-opacity=".05"><path d="M8 0h8v8H8zM0 8h8v8H0z"/></svg>');
-}
-
-.hue-area {
-	border-radius: 15px;
-	background: linear-gradient(
-		90deg,
-		red,
-		#ff2b00,
-		#f50,
-		#ff8000,
-		#fa0,
-		#ffd500,
-		#ff0,
-		#d4ff00,
-		#af0,
-		#80ff00,
-		#5f0,
-		#2bff00,
-		#0f0,
-		#00ff2b,
-		#0f5,
-		#00ff80,
-		#0fa,
-		#00ffd5,
-		#0ff,
-		#00d4ff,
-		#0af,
-		#007fff,
-		#05f,
-		#002bff,
-		#00f,
-		#2a00ff,
-		#50f,
-		#7f00ff,
-		#a0f,
-		#d400ff,
-		#f0f,
-		#ff00d4,
-		#f0a,
-		#ff0080,
-		#f05,
-		#ff002b
-	);
-}
-
-.hue-areaV {
-	border-radius: 15px;
-	background: linear-gradient(
-		0deg,
-		red,
-		#ff2b00,
-		#f50,
-		#ff8000,
-		#fa0,
-		#ffd500,
-		#ff0,
-		#d4ff00,
-		#af0,
-		#80ff00,
-		#5f0,
-		#2bff00,
-		#0f0,
-		#00ff2b,
-		#0f5,
-		#00ff80,
-		#0fa,
-		#00ffd5,
-		#0ff,
-		#00d4ff,
-		#0af,
-		#007fff,
-		#05f,
-		#002bff,
-		#00f,
-		#2a00ff,
-		#50f,
-		#7f00ff,
-		#a0f,
-		#d400ff,
-		#f0f,
-		#ff00d4,
-		#f0a,
-		#ff0080,
-		#f05,
-		#ff002b
-	);
-}
-
-.picking-area {
-	width: 300px;
-	height: 300px;
 }
 </style>

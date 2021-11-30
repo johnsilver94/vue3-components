@@ -1,10 +1,14 @@
 <template>
-	<div ref="areaRef" :class="['area bg-white', areaClass, attrs.areaclass]" :style="[areaStyle]">
+	<div ref="areaRef" class="area bg-white">
 		<div ref="rangeRef" class="range" :style="rangeStyle" @click.self="mouseClick">
 			<div
+				role="button"
+				tabindex="0"
 				:class="['slider', sliderClass, attrs.sliderclass]"
 				:style="[sliderStyle, sliderComputedStyle]"
 				@mousedown="mouseDown"
+				@keypress.ctrl="keyPress"
+				@keydown="keyDown"
 			/>
 		</div>
 	</div>
@@ -23,8 +27,6 @@ interface XYSliderProps {
 	slider: Slider
 	sliderStyle?: CSSProperties
 	sliderClass?: string
-	areaStyle?: CSSProperties
-	areaClass?: string
 	axis: Axis
 }
 
@@ -122,12 +124,17 @@ const sizeHeight = computed((): number => {
 	} else return size.height
 })
 
+const round = (value: number): number => {
+	return Math.round(value * 10000) / 10000
+}
+
 const xCoord = computed({
 	get: (): number => {
 		return props.x * 100
 	},
 	set: (value: number): void => {
-		emit('update:x', value)
+		console.log(value)
+		emit('update:x', round(value))
 	},
 })
 
@@ -136,7 +143,8 @@ const yCoord = computed({
 		return 100 - props.y * 100
 	},
 	set: (value: number): void => {
-		emit('update:y', value)
+		console.log(value)
+		emit('update:y', round(value))
 	},
 })
 
@@ -182,6 +190,40 @@ const mouseClick = (e: MouseEvent) => {
 			xCoord.value = range(offsetX, 0, width) / width
 			yCoord.value = range(height - offsetY, 0, height) / height
 	}
+}
+
+const keyDown = (e: KeyboardEvent) => {
+	const { code } = e
+	const { axis } = props
+
+	switch (code) {
+		case 'ArrowLeft':
+			console.log('ArrowLeft')
+			xCoord.value = range(xCoord.value / 100 - 0.01, 0, 1)
+			break
+		case 'ArrowRight':
+			console.log('ArrowRight')
+			xCoord.value = range(xCoord.value / 100 + 0.01, 0, 1)
+			break
+		case 'ArrowUp':
+			console.log('ArrowUp')
+			if (axis === Axis.X) return
+
+			yCoord.value = range((100 - yCoord.value) / 100 + 0.01, 0, 1)
+			break
+		case 'ArrowDown':
+			console.log('ArrowDown')
+			if (axis === Axis.X) return
+
+			yCoord.value = range((100 - yCoord.value) / 100 - 0.01, 0, 1)
+			break
+		default:
+			console.log('Another')
+	}
+}
+
+const keyPress = (e: Event) => {
+	console.log(e)
 }
 
 const rangeStyle = computed((): CSSProperties => {
@@ -237,7 +279,11 @@ const sliderComputedStyle = computed((): CSSProperties => {
 	border: 2px solid gray;
 	transform: translate(-50%, -50%);
 
-	&:hover {
+	outline: none;
+
+	&:hover,
+	&:active,
+	&:focus {
 		transform: translate(-50%, -50%) scale(1.2);
 	}
 }
