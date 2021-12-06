@@ -8,9 +8,9 @@
 		"serve": "vite preview",
 		"lint:script": "eslint --ext .ts,vue --ignore-path .gitignore ."
 	},
-	"engines": {
-		"yarn": ">=1.12.4",
-		"node": ">=12.18.2"
+	"volta": {
+		"node": "16.13.1",
+		"yarn": "1.22.17"
 	},
 	"husky": {
 		"hooks": {
