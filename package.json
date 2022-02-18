@@ -8,10 +8,7 @@
 		"serve": "vite preview",
 		"lint:script": "eslint --ext .ts,vue --ignore-path .gitignore ."
 	},
-	"volta": {
-		"node": "16.13.1",
-		"yarn": "1.22.17"
-	},
+	"packageManager": "pnpm@6.31.0",
 	"husky": {
 		"hooks": {
 			"pre-commit": "lint-staged"
@@ -24,6 +21,7 @@
 	},
 	"dependencies": {
 		"@types/tinycolor2": "^1.4.3",
+		"@vue/runtime-core": "^3.2.31",
 		"lodash": "^4.17.21",
 		"tinycolor2": "^1.4.2",
 		"vue": "^3.2.16",
